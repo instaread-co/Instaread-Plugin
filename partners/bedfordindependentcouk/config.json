@@ -4,6 +4,8 @@
     "publication": "bedfordindependentcouk",
     "injection_context": "post",
     "injection_strategy": "first",
+    "force_disable_logs": true,
+    "clear_page_cache_on_upgrade": true,
     "injection_rules": [
         {
             "target_selector": "",
@@ -33,7 +35,6 @@
                 "/submit-event/",
                 "/sign-up-for-emails/",
                 "/advertise-with-us/",
-                "/advertise-with-us/",
                 "/shop/",
                 "/cart/",
                 "/checkout/",
@@ -43,13 +44,10 @@
                 "/medicine/",
                 "/space/",
                 "/future/",
-                "/about/",
                 "/authors/",
                 "/advertise/",
                 "/contribute/",
                 "/editorial-policy/",
-                "/privacy-policy/",
-                "/contact/",
                 "/reviews/",
                 "/french-city-guides/",
                 "/podcast-2/",
@@ -67,11 +65,10 @@
                 "/info/about/",
                 "/stage-names/",
                 "/Online/default.asp",
-                "/news/",
                 "/news/stratford-upon-avon-theatre/",
                 "/shows/london-theatre/"
             ]
         }
     ],
-    "version": "4.2.6"
+    "version": "4.5.9"
 }

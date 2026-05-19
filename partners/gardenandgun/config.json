@@ -8,13 +8,21 @@
     {
       "target_selector": ".article-content",
       "insert_position": "prepend",
-      "exclude_slugs": ["privacy-policy", "terms"]
+      "exclude_slugs": [
+        "privacy-policy",
+        "terms"
+      ]
     },
     {
       "target_selector": ".p2",
       "insert_position": "prepend",
-      "exclude_slugs": ["contact", "about"]
+      "exclude_slugs": [
+        "contact",
+        "about"
+      ]
     }
   ],
-  "version": "2.2.1"
+  "version": "4.5.9",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true
 }

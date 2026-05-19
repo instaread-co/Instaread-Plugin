@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - dodgerblue",
-  "version": "2.6.12",
-  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/dodgerblue-v2.6.12/dodgerblue-v2.6.12.zip",
+  "version": "4.5.9",
+  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/dodgerblue-v4.5.9/dodgerblue-v4.5.9.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>2.6.12</h4><ul><li>Partner-specific build for dodgerblue</li></ul>"
+    "changelog": "<h4>4.5.9</h4><ul><li>Disable verbose debug logging in production (resolves PHP error_log spam).</li><li>Auto-clear page cache on plugin upgrade to prevent stale player markup.</li><li>Reset PHP OPcache after a successful install so new plugin files are actually loaded on next request.</li></ul>"
   }
 }

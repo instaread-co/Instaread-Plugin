@@ -5,38 +5,39 @@
     "injection_context": "post",
     "injection_strategy": "first",
     "injection_rules": [
-      {
-        "target_selector": ".entry-content",
-        "insert_position": "inside_first_child",
-        "exclude_slugs": [
-          "/category/rumors/",
-          "/official-2025-26-lakers-regular-season-schedule/",
-          "/video/",
-          "/faq-frequently-asked-questions/",
-          "/privacy-policy/",
-          "/about/",
-          "/terms-of-service/",
-          "/news/",
-          "/category/games/",
-          "/history/",
-          "/contact/",
-          "/category/news/",
-          "/about-us/",
-          "/contact-us/",
-          "/services/",
-          "/category/growers-guide/",
-          "/nation-world/",
-          "/category/localstate/state/",
-          "/category/ag-sectors/",
-          "/partner-with-us/",
-          "/submit-event/",
-          "/sign-up-for-emails/",
-          "/advertise-with-us/",
-          "/advertise-with-us/",
-          "/my-account/"
-        ]
-      }
+        {
+            "target_selector": ".entry-content",
+            "insert_position": "inside_first_child",
+            "exclude_slugs": [
+                "/category/rumors/",
+                "/official-2025-26-lakers-regular-season-schedule/",
+                "/video/",
+                "/faq-frequently-asked-questions/",
+                "/privacy-policy/",
+                "/about/",
+                "/terms-of-service/",
+                "/news/",
+                "/category/games/",
+                "/history/",
+                "/contact/",
+                "/category/news/",
+                "/about-us/",
+                "/contact-us/",
+                "/services/",
+                "/category/growers-guide/",
+                "/nation-world/",
+                "/category/localstate/state/",
+                "/category/ag-sectors/",
+                "/partner-with-us/",
+                "/submit-event/",
+                "/sign-up-for-emails/",
+                "/advertise-with-us/",
+                "/advertise-with-us/",
+                "/my-account/"
+            ]
+        }
     ],
-    "version": "4.2.0"
-  }
-  
+    "version": "4.5.9",
+    "force_disable_logs": true,
+    "clear_page_cache_on_upgrade": true
+}

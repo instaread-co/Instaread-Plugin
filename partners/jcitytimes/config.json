@@ -5,5 +5,7 @@
   "injection_context": "post",
   "injection_strategy": "custom",
   "injection_rules": [],
-  "version": "2.2.4"
+  "version": "4.5.9",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true
 }

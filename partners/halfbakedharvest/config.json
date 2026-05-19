@@ -6,17 +6,24 @@
     {
       "target_selector": ".recipe-content",
       "insert_position": "append",
-      "exclude_slugs": ["about", "privacy"]
+      "exclude_slugs": [
+        "about",
+        "privacy"
+      ]
     },
     {
       "target_selector": ".sidebar",
       "insert_position": "prepend",
-      "exclude_slugs": ["contact"]
+      "exclude_slugs": [
+        "contact"
+      ]
     }
   ],
   "styles": {
     "player_color": "#FF6B6B",
     "player_height": "60px"
   },
-  "version": "1.0.0"
+  "version": "4.5.9",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true
 }

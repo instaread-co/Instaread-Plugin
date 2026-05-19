@@ -1245,9 +1245,14 @@ class InstareadPlayer {
             return $content;
         }
 
-        // Prevent double injection from content already containing the player
-        if (strpos($content, 'instaread-player-slot') !== false || strpos($content, 'instaread-player') !== false) {
-            if ($debug_mode) $this->log('Skipping: player already present in content');
+        // Prevent double injection from content already containing the player.
+        // Only skip when a real <instaread-player> web component is present.
+        // An empty <div class="instaread-player-slot"></div> can be left behind
+        // by older client-side-injection plugin versions or hand-edited posts;
+        // those should NOT block injection (regression seen on moonandspoonandyum
+        // after the v2.8.x -> v4.5.x upgrade, 2026-05-19).
+        if (strpos($content, '<instaread-player') !== false) {
+            if ($debug_mode) $this->log('Skipping: <instaread-player> tag already present in content');
             return $content;
         }
 

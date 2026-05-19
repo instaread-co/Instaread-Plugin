@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - thesportingtribune",
-  "version": "4.2.2",
-  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/thesportingtribune-v4.2.2/thesportingtribune-v4.2.2.zip",
+  "version": "4.5.9",
+  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/thesportingtribune-v4.5.9/thesportingtribune-v4.5.9.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.2.2</h4><ul><li>Partner-specific build for thesportingtribune</li></ul>"
+    "changelog": "<h4>4.5.9</h4><ul><li>Disable verbose debug logging in production (resolves PHP error_log spam).</li><li>Auto-clear page cache on plugin upgrade to prevent stale player markup.</li><li>Reset PHP OPcache after a successful install so new plugin files are actually loaded on next request.</li></ul>"
   }
 }

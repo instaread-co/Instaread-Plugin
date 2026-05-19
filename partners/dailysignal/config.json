@@ -3,7 +3,9 @@
   "domain": "dailysignal.com",
   "publication": "dailysignal",
   "enqueue_remote_player_script_sitewide": true,
-  "suppress_body_classes": ["single-post-author"],
+  "suppress_body_classes": [
+    "single-post-author"
+  ],
   "injection_context": "post",
   "injection_strategy": "first",
   "injection_rules": [
@@ -76,5 +78,7 @@
       ]
     }
   ],
-  "version": "4.4.6"
+  "version": "4.5.9",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true
 }

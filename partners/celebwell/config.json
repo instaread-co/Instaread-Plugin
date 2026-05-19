@@ -11,5 +11,7 @@
       "exclude_slugs": []
     }
   ],
-  "version": "2.2.6"
+  "version": "4.5.9",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true
 }

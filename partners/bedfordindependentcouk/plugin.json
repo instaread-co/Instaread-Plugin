@@ -1,10 +1,10 @@
 {
-    "name": "Instaread Audio Player - bedfordindependentcouk",
-    "version": "4.2.6",
-    "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/bedfordindependentcouk-v4.2.6/bedfordindependentcouk-v4.2.6.zip",
-    "requires": "5.6",
-    "tested": "6.5",
-    "sections": {
-        "changelog": "<h4>4.2.6</h4><ul><li>Partner-specific build for bedfordindependentcouk</li></ul>"
-    }
+  "name": "Instaread Audio Player - bedfordindependentcouk",
+  "version": "4.5.9",
+  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/bedfordindependentcouk-v4.5.9/bedfordindependentcouk-v4.5.9.zip",
+  "requires": "5.6",
+  "tested": "6.5",
+  "sections": {
+    "changelog": "<h4>4.5.9</h4><ul><li>Partner-specific build for bedfordindependentcouk</li></ul>"
+  }
 }

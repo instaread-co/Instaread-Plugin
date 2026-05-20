@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - slantmagazine",
-  "version": "4.5.12",
-  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/slantmagazine-v4.5.12/slantmagazine-v4.5.12.zip",
+  "version": "4.6.0",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/slantmagazine-v4.6.0/slantmagazine-v4.6.0.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.5.12</h4><ul><li>Partner-specific build for slantmagazine</li></ul>"
+    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for slantmagazine</li></ul>"
   }
 }

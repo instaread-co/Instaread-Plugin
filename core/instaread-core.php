@@ -1333,24 +1333,39 @@ class InstareadPlayer {
         // unrelated location is worse than not injecting at all.
         $allow_fallback_injection = $this->partner_config['fallback_injection'] ?? true;
         if (!$injected && $allow_fallback_injection && !empty($this->settings['injection_rules'])) {
-            $first_rule  = $this->settings['injection_rules'][0];
-            $player_html = $is_playlist
+            $first_rule       = $this->settings['injection_rules'][0];
+            $player_html      = $is_playlist
                 ? $this->render_playlist($publication, $playlist_height)
                 : $this->render_single($publication, $player_type, $color, $slot_css);
 
-            $content = $this->inject_with_safe_string_manipulation(
+            $original_content = $content;
+            $content          = $this->inject_with_safe_string_manipulation(
                 $content,
                 $player_html,
                 $first_rule['target_selector'],
                 $first_rule['insert_position'] ?? 'append',
                 true
             );
+            if ($content !== $original_content) {
+                $injected = true;
+            }
         } elseif (!$injected && !$allow_fallback_injection && $debug_mode) {
             $this->log('No selector matched and fallback_injection is disabled — skipping injection.');
         }
 
-        // Mark as done so re-entrant the_content calls skip injection.
-        $already_injected = true;
+        // Mark as done ONLY when injection actually modified the content.
+        // Previously this was set unconditionally, which caused a subtle bug:
+        // plugins/themes that call the_content() on excerpts/related-posts/
+        // social-share snippets BEFORE the main article render would burn the
+        // injection budget. The early fire passes all guards (same slug, same
+        // post type), tries to inject, then sets the flag — and when the main
+        // render fires later, this line bails immediately so no player ever
+        // appears in the actual article body. Observed on bravewords.com and
+        // thisdayinsport.com which both run Yoast Premium + AdInserter.
+        // (Setting flag only when $injected is true matches v4.2.8 behavior.)
+        if ($injected) {
+            $already_injected = true;
+        }
 
         return $content;
     }

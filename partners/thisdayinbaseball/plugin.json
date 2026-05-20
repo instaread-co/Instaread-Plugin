@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - thisdayinbaseball",
-  "version": "4.5.13",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/thisdayinbaseball-v4.5.13/thisdayinbaseball-v4.5.13.zip",
+  "version": "4.6.0",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/thisdayinbaseball-v4.6.0/thisdayinbaseball-v4.6.0.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.5.13</h4><ul><li>Partner-specific build for thisdayinbaseball</li></ul>"
+    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for thisdayinbaseball</li></ul>"
   }
 }

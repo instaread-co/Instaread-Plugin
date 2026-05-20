@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.5.13</h4><ul><li>Use WordPress-native injection (empty target_selector + prepend) so the player renders correctly inside the_content filter.</li><li>Deduplicated exclude_slugs list.</li></ul>"
+    "changelog": "<h4>4.5.13</h4><ul><li>Partner-specific build for thisdayinbaseball</li></ul>"
   }
 }

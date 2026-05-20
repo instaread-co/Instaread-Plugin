@@ -452,8 +452,8 @@ class InstareadPlayer {
 
     private function init_update_checker() {
         $update_url = $this->partner_config
-            ? "https://raw.githubusercontent.com/suvarna-sumanth/Instaread-Plugin/main/partners/{$this->partner_config['partner_id']}/plugin.json"
-            : 'https://suvarna-sumanth.github.io/Instaread-Plugin/plugin.json';
+            ? "https://raw.githubusercontent.com/instaread-co/Instaread-Plugin/main/partners/{$this->partner_config['partner_id']}/plugin.json"
+            : 'https://instaread-co.github.io/Instaread-Plugin/plugin.json';
 
         PucFactory::buildUpdateChecker(
             $update_url,
@@ -703,7 +703,7 @@ class InstareadPlayer {
         }
 
         // Directly fetch plugin.json — bypasses update_plugins transient which may not be populated yet
-        $plugin_json_url = "https://raw.githubusercontent.com/suvarna-sumanth/Instaread-Plugin/main/partners/{$partner_id}/plugin.json";
+        $plugin_json_url = "https://raw.githubusercontent.com/instaread-co/Instaread-Plugin/main/partners/{$partner_id}/plugin.json";
         $response = wp_safe_remote_get($plugin_json_url, ['timeout' => 15, 'sslverify' => true]);
 
         if (is_wp_error($response)) {

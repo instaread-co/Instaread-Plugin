@@ -8,8 +8,8 @@
   "container_height": "144px",
   "injection_rules": [
     {
-      "target_selector": ".entry-meta",
-      "insert_position": "append",
+      "target_selector": "",
+      "insert_position": "prepend",
       "exclude_slugs": [
         "/",
         "/category/rumors/",

@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.2</h4><ul><li>Restore original player placement: render right after the entry-meta byline (server-side JS mover handles after_element at runtime). Also enqueue player JS site-wide so it loads regardless of injection path.</li></ul>"
+    "changelog": "<h4>4.7.2</h4><ul><li>Partner-specific build for hangman</li></ul>"
   }
 }

@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - ewrestling",
-  "version": "4.5.9",
-  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/ewrestling-v4.5.9/ewrestling-v4.5.9.zip",
+  "version": "4.5.12",
+  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/ewrestling-v4.5.12/ewrestling-v4.5.12.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.5.9</h4><ul><li>Partner-specific build for ewrestling</li></ul>"
+    "changelog": "<h4>4.5.12</h4><ul><li>Partner-specific build for ewrestling</li></ul>"
   }
 }

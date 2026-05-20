@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - hangman",
-  "version": "4.6.0",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/hangman-v4.6.0/hangman-v4.6.0.zip",
+  "version": "4.7.2",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/hangman-v4.7.2/hangman-v4.7.2.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for hangman</li></ul>"
+    "changelog": "<h4>4.7.2</h4><ul><li>Restore original player placement: render right after the entry-meta byline (server-side JS mover handles after_element at runtime). Also enqueue player JS site-wide so it loads regardless of injection path.</li></ul>"
   }
 }

@@ -8,8 +8,8 @@
   "container_height": "144px",
   "injection_rules": [
     {
-      "target_selector": "",
-      "insert_position": "prepend",
+      "target_selector": ".entry-meta",
+      "insert_position": "after_element",
       "exclude_slugs": [
         "/",
         "/category/rumors/",
@@ -65,7 +65,8 @@
       ]
     }
   ],
-  "version": "4.6.0",
+  "version": "4.7.2",
   "force_disable_logs": true,
-  "clear_page_cache_on_upgrade": true
+  "clear_page_cache_on_upgrade": true,
+  "enqueue_remote_player_script_sitewide": true
 }

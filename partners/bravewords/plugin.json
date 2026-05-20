@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.2</h4><ul><li>Site-wide enqueue of the player JS so footer JS fallback works (player tag was being injected but its supporting script wasn't loaded).</li></ul>"
+    "changelog": "<h4>4.7.2</h4><ul><li>Partner-specific build for bravewords</li></ul>"
   }
 }

@@ -5,6 +5,7 @@
   "injection_context": "post",
   "injection_strategy": "first",
   "container_height": "85px",
+  "slot_css": "",
   "injection_rules": [
     {
       "target_selector": ".instaread-player-slot",
@@ -30,7 +31,7 @@
       ]
     }
   ],
-  "version": "4.5.10",
+  "version": "4.5.11",
   "force_disable_logs": true,
   "clear_page_cache_on_upgrade": true
 }

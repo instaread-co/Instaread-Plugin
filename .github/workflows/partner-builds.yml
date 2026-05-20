@@ -16,6 +16,11 @@ on:
 jobs:
   build-partner-plugin:
     runs-on: ubuntu-latest
+    # Explicit token permissions — required because instaread-co org defaults
+    # GITHUB_TOKEN to read-only. The workflow needs contents: write to push
+    # the regenerated plugin.json commit and to create GitHub releases.
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

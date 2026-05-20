@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.2</h4><ul><li>Enable footer JS fallback + site-wide player JS enqueue. Fixes silent injection failure on morenews-pro theme where the_content filter doesn't reach our handler reliably.</li></ul>"
+    "changelog": "<h4>4.7.2</h4><ul><li>Partner-specific build for thisdayinbaseball</li></ul>"
   }
 }

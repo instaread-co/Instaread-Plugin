@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - bravewords",
-  "version": "4.7.0",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bravewords-v4.7.0/bravewords-v4.7.0.zip",
+  "version": "4.7.1",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bravewords-v4.7.1/bravewords-v4.7.1.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.0</h4><ul><li>Partner-specific build for bravewords</li></ul>"
+    "changelog": "<h4>4.7.1</h4><ul><li>Enable wp_footer JS fallback for sites where the_content filter doesn't reach our handler reliably.</li></ul>"
   }
 }

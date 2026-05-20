@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - starwarsnewsnet",
-  "version": "4.5.12",
-  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/starwarsnewsnet-v4.5.12/starwarsnewsnet-v4.5.12.zip",
+  "version": "4.6.0",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/starwarsnewsnet-v4.6.0/starwarsnewsnet-v4.6.0.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.5.12</h4><ul><li>Partner-specific build for starwarsnewsnet</li></ul>"
+    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for starwarsnewsnet</li></ul>"
   }
 }

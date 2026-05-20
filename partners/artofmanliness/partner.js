@@ -52,59 +52,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const { wrapper, script } = createPlayerElements();
 
-  // --- NEW, MORE SPECIFIC LOGIC ---
-  // Get the very first HTML element inside the content container.
   const firstElement = mainContent.firstElementChild;
   let targetImageElement = null;
 
   if (firstElement) {
     log("[Instaread Player] Checking first element in content:", firstElement);
-    // Case 1: The first element is a <p> tag. Check if it contains an image.
     if (firstElement.tagName === "P" && firstElement.querySelector("img")) {
       log(
         "[Instaread Player] LOGIC: First element is a paragraph containing a featured image."
       );
-      targetImageElement = firstElement; // Target the entire paragraph for injection.
+      targetImageElement = firstElement;
     }
   }
 
-  // --- INJECTION DECISION ---
   if (targetImageElement) {
-    // A featured image was found at the top. Inject after it.
     log(
       "%c[Instaread Player] Injecting AFTER the featured image element.",
       logStyle
     );
     targetImageElement.after(wrapper, script);
     console.log("[Instaread Player] Injection complete.");
-  } else {
-    // No featured image at the top. Find the first paragraph with text.
+  } else if (firstElement && firstElement.tagName === "P" && firstElement.textContent.trim() !== "") {
+    // Well-formed post: first child is a real text <p>. Inject before it.
     log(
-      "[Instaread Player] LOGIC: No featured image found. Searching for the first paragraph with text."
+      "%c[Instaread Player] SUCCESS: First element is a text paragraph. Injecting BEFORE it.",
+      logStyle,
+      firstElement
     );
-    let firstTextParagraph = null;
-    const allParagraphs = mainContent.querySelectorAll("p");
-    for (const p of allParagraphs) {
-      if (p.textContent.trim() !== "") {
-        firstTextParagraph = p;
-        break;
-      }
-    }
-
-    if (firstTextParagraph) {
-      log(
-        "%c[Instaread Player] SUCCESS: Found first text paragraph. Injecting BEFORE it.",
-        logStyle,
-        firstTextParagraph
-      );
-      firstTextParagraph.before(wrapper, script);
-      console.log("[Instaread Player] Injection complete.");
-    } else {
-      warn(
-        "[Instaread Player] WARNING: No paragraphs with text content were found. Falling back to top placement."
-      );
-      mainContent.prepend(wrapper, script);
-      console.log("[Instaread Player] Injection complete.");
-    }
+    firstElement.before(wrapper, script);
+    console.log("[Instaread Player] Injection complete.");
+  } else {
+    // Malformed lead (e.g. <br> followed by bare text, missing opening <p>).
+    // Prepend to the content container so the player sits above all article content.
+    log(
+      "[Instaread Player] LOGIC: No leading text paragraph. Prepending player to top of content container."
+    );
+    mainContent.prepend(wrapper, script);
+    console.log("[Instaread Player] Injection complete.");
   }
 });

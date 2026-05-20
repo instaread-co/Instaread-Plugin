@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - inkfreenews",
-  "version": "4.5.10",
-  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/inkfreenews-v4.5.10/inkfreenews-v4.5.10.zip",
+  "version": "4.5.12",
+  "download_url": "https://github.com/suvarna-sumanth/Instaread-Plugin/releases/download/inkfreenews-v4.5.12/inkfreenews-v4.5.12.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.5.10</h4><ul><li>Partner-specific build for inkfreenews</li></ul>"
+    "changelog": "<h4>4.5.12</h4><ul><li>Partner-specific build for inkfreenews</li></ul>"
   }
 }

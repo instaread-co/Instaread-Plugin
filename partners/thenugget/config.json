@@ -2,7 +2,7 @@
   "partner_id": "thenugget",
   "domain": "thenugget.instaread.co",
   "publication": "thenugget",
-  "version": "4.5.9",
+  "version": "4.6.0",
   "injection_context": "post",
   "injection_strategy": "first",
   "injection_rules": [

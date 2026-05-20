@@ -53,6 +53,58 @@ jobs:
           }
           EOF
 
+      - name: Sync partner config.json version
+        # The running plugin sources its self-reported version from
+        # partner_config['version'] (see core/instaread-core.php). If config.json's
+        # version lags behind plugin.json's version, the installed plugin keeps
+        # reporting the OLD version and WordPress shows "Update available" on
+        # every cron cycle, even after the install succeeded.
+        #
+        # Uses a targeted regex edit (not full JSON re-serialization) so we
+        # preserve the file's existing indentation, key ordering, and trailing
+        # whitespace. The "version" field is always a top-level string field
+        # in our partner configs, so this regex is safe.
+        env:
+          PARTNER_ID: ${{ github.event.inputs.partner_id }}
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          CONFIG="partners/${PARTNER_ID}/config.json"
+          if [ -f "$CONFIG" ]; then
+            python3 <<'PY'
+          import json, os, re
+          path = f"partners/{os.environ['PARTNER_ID']}/config.json"
+          version = os.environ['VERSION']
+          text = open(path).read()
+
+          # Validate it's valid JSON before AND after the edit
+          orig = json.loads(text)
+
+          # Targeted replacement: "version": "<anything>" -> "version": "<new>"
+          # Only the FIRST match (top-level field) to avoid hitting any nested
+          # version-like field a partner config might have in the future.
+          new_text, count = re.subn(
+              r'"version"\s*:\s*"[^"]*"',
+              f'"version": "{version}"',
+              text,
+              count=1,
+          )
+
+          if count == 0:
+              # No version field present; insert one as the last key (rare).
+              new_text = json.dumps({**orig, 'version': version}, indent=2) + '\n'
+
+          # Sanity check: still valid JSON and version is what we set
+          parsed = json.loads(new_text)
+          assert parsed.get('version') == version, f"version field not updated: {parsed.get('version')!r}"
+
+          with open(path, 'w') as f:
+              f.write(new_text)
+          print(f"config.json version set to {version} (regex replacements: {count})")
+          PY
+          else
+            echo "::warning::No config.json for $PARTNER_ID, skipping sync"
+          fi
+
       - name: Build partner plugin
         run: |
           PARTNER_ID="${{ github.event.inputs.partner_id }}"
@@ -105,17 +157,19 @@ jobs:
           files: build/${{ github.event.inputs.partner_id }}-v${{ github.event.inputs.version }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit plugin.json update
+      - name: Commit plugin.json + config.json updates
         run: |
+          PARTNER_ID="${{ github.event.inputs.partner_id }}"
+          VERSION="${{ github.event.inputs.version }}"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add partners/${{ github.event.inputs.partner_id }}/plugin.json
+          git add partners/${PARTNER_ID}/plugin.json partners/${PARTNER_ID}/config.json
 
           # Check if there are changes to commit
           if git diff --staged --quiet; then
-            echo "No changes to plugin.json, skipping commit"
+            echo "No changes to plugin.json/config.json, skipping commit"
           else
-            git commit -m "Update plugin.json for ${{ github.event.inputs.partner_id }} v${{ github.event.inputs.version }}"
+            git commit -m "Update plugin.json + config.json for ${PARTNER_ID} v${VERSION}"
             git push
           fi
 

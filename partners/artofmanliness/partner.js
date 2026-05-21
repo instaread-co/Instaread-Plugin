@@ -36,14 +36,22 @@ document.addEventListener("DOMContentLoaded", function () {
   log("[Instaread Player] SUCCESS: Found main content container:", mainContent);
 
   const createPlayerElements = () => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "playerContainer instaread-content-wrapper";
-    wrapper.innerHTML = `
-            <instaread-player publication="${publicationId}" class="instaread-player">
-              <div class="instaread-audio-player" style="box-sizing:border-box;margin:0">
-                <iframe id="instaread_iframe" width="100%" height="100%" scrolling="no" frameborder="0" loading="lazy" title="Audio Article" style="display:block" data-pin-nopin="true"></iframe>
-              </div>
-            </instaread-player>`;
+    // Emit ONLY the <instaread-player> custom element. The publication bundle
+    // (instaread.{pub}.js) builds its own .instaread-audio-player + iframe
+    // inside this element via buildPlayerConstruction().
+    //
+    // Previously we emitted a wrapper <div class="instaread-content-wrapper">
+    // containing the player element + a placeholder #instaread_iframe. The
+    // publication bundle's setup function (line ~512 of instaread.{pub}.js)
+    // treats that hybrid markup as "plugin in transition" and removes the
+    // wrapper — taking <instaread-player> with it — then retries 10x looking
+    // for an <instaread-player> that no longer exists.
+    //
+    // The fix: emit only the custom element, no wrapper, no iframe. The
+    // bundle's setupPlayerNew() will build everything it needs inside.
+    const wrapper = document.createElement("instaread-player");
+    wrapper.setAttribute("publication", publicationId);
+    wrapper.classList.add("instaread-player");
     const script = document.createElement("script");
     script.src = `https://player.instaread.co/js/instaread.${publicationId}.js?version=${Date.now()}`;
     script.type = "module";

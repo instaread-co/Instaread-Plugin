@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - artofmanliness",
-  "version": "4.6.1",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/artofmanliness-v4.6.1/artofmanliness-v4.6.1.zip",
+  "version": "4.6.2",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/artofmanliness-v4.6.2/artofmanliness-v4.6.2.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.1</h4><ul><li>Partner-specific build for artofmanliness</li></ul>"
+    "changelog": "<h4>4.6.2</h4><ul><li>Emit the new <instaread-player> markup format only — drop the legacy wrapper div + inner iframe. Publication bundle was treating our hybrid markup as 'plugin in transition', removing our wrapper (which contained the custom element), then giving up after 10 retries because <instaread-player> was no longer in the DOM.</li></ul>"
   }
 }

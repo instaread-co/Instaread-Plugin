@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - artofmanliness",
-  "version": "4.6.0",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/artofmanliness-v4.6.0/artofmanliness-v4.6.0.zip",
+  "version": "4.6.1",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/artofmanliness-v4.6.1/artofmanliness-v4.6.1.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for artofmanliness</li></ul>"
+    "changelog": "<h4>4.6.1</h4><ul><li>partner.js now loads the player JS from player.instaread.co (matching the rest of the plugin) instead of instaread.co. Fixes player not rendering on articles where the web component fails to register from the wrong origin.</li></ul>"
   }
 }

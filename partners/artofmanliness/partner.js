@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
             </instaread-player>`;
     const script = document.createElement("script");
-    script.src = `https://instaread.co/js/instaread.${publicationId}.js?version=${Date.now()}`;
+    script.src = `https://player.instaread.co/js/instaread.${publicationId}.js?version=${Date.now()}`;
     script.type = "module";
     return { wrapper, script };
   };
@@ -81,9 +81,20 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     firstElement.before(wrapper, script);
     console.log("[Instaread Player] Injection complete.");
+  } else if (firstElement && firstElement.tagName === "BR") {
+    // Malformed lead variant: post starts with a stray <br/> followed by bare text
+    // (no opening <p>). Inject right above the <br/> so the player sits above the
+    // first line of article copy instead of being prepended above all wrappers.
+    log(
+      "%c[Instaread Player] LOGIC: First element is <br>. Injecting BEFORE the <br>.",
+      logStyle,
+      firstElement
+    );
+    firstElement.before(wrapper, script);
+    console.log("[Instaread Player] Injection complete.");
   } else {
-    // Malformed lead (e.g. <br> followed by bare text, missing opening <p>).
-    // Prepend to the content container so the player sits above all article content.
+    // Malformed lead (no <p>, no <br>). Prepend to the content container so the
+    // player sits above all article content.
     log(
       "[Instaread Player] LOGIC: No leading text paragraph. Prepending player to top of content container."
     );

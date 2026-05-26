@@ -1,0 +1,39 @@
+
+              @media only screen and (max-width: 652px) {
+                .instaread-player-slot {
+                  height: 236px !important;
+                }
+              }
+              @media only screen and (min-width: 653px) and (max-width: 768px) {
+              .instaread-player-slot {
+                height: 160px !important;
+                
+              }
+            }
+            
+              @media only screen and (min-width: 769px) and (max-width: 799px) {
+              .instaread-player-slot {
+                height: 236px !important;
+                
+              }
+              @media only screen and (min-width: 800px) and (max-width: 1024px) {
+              .instaread-player-slot {
+                height: 160px !important;
+                
+              }
+            }
+              @media only screen and (min-width: 1025px) and (max-width: 1195px) {
+              .instaread-player-slot {
+                height: 236px !important;
+              }
+            }
+
+            /* 968px and above */
+            @media only screen and (min-width: 1196px) {
+              .instaread-player-slot {
+                height: 160px !important;
+                
+                
+              }
+            }
+            }

@@ -1,0 +1,10 @@
+{
+  "name": "Instaread Audio Player - PARTNER_ID",
+  "version": "FLEET_VERSION",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/PARTNER_ID-vFLEET_VERSION/PARTNER_ID-vFLEET_VERSION.zip",
+  "requires": "5.6",
+  "tested": "6.5",
+  "sections": {
+    "changelog": "<h4>FLEET_VERSION</h4><ul><li>Initial release for DOMAIN.TLD.</li></ul>"
+  }
+}

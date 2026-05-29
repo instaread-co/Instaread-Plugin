@@ -258,7 +258,7 @@ class InstareadPlayer {
             if (strpos($tag, 'data-cfasync') === false) {
                 $tag = str_replace(
                     '<script ',
-                    '<script data-cfasync="false" data-no-optimize="1" data-no-defer="1" data-no-minify="1" ',
+                    '<script data-cfasync="false" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-nitro-exclude ',
                     $tag
                 );
             }
@@ -1049,12 +1049,18 @@ class InstareadPlayer {
      * Inline publisher script tag when not using site-wide wp_enqueue_script (legacy / default).
      */
     private function get_inline_instaread_player_script_tag($publication) {
+        // data-nitro-exclude: NitroPack does NOT honor data-no-optimize/minify
+        // (those are WP-Rocket/Autoptimize conventions). Without this attribute
+        // NitroPack's HTML post-processor proxies our script to its own CDN
+        // (cdn-*.nitrocdn.com/.../nitro-min-instaread.<pub>.js), which delays
+        // picking up new player bundle versions and can serve a stale build.
         return sprintf(
             '<script defer
                 data-cfasync="false"
                 data-no-optimize="1"
                 data-no-defer="1"
                 data-no-minify="1"
+                data-nitro-exclude
                 src="https://player.instaread.co/js/instaread.%s.js">
             </script>',
             esc_attr($publication)
@@ -1083,6 +1089,7 @@ class InstareadPlayer {
                 data-no-optimize="1"
                 data-no-defer="1"
                 data-no-minify="1"
+                data-nitro-exclude
                 src="%s">
             </script>',
             $url

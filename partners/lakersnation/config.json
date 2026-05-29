@@ -26,7 +26,7 @@
       ]
     }
   ],
-  "version": "4.6.0",
+  "version": "4.7.3",
   "force_disable_logs": true,
   "clear_page_cache_on_upgrade": true
 }

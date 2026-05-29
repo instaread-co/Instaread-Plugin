@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - lakersnation",
-  "version": "4.6.0",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/lakersnation-v4.6.0/lakersnation-v4.6.0.zip",
+  "version": "4.7.3",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/lakersnation-v4.7.3/lakersnation-v4.7.3.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for lakersnation</li></ul>"
+    "changelog": "<h4>4.7.3</h4><ul><li>Add data-nitro-exclude to player script tags so NitroPack stops proxying our JS through its CDN (it doesn't honor data-no-optimize/minify). The player JS now loads directly from player.instaread.co.</li></ul>"
   }
 }

@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.5</h4><ul><li>Harden NitroPack auto-purge: try all known purge entry points (legacy helpers, do_action hook, and the NitroPack singleton class) instead of just one. The 4.7.4 attempt didn't fire on this site because NitroPack's PHP API uses a different name than expected.</li></ul>"
+    "changelog": "<h4>4.7.5</h4><ul><li>Partner-specific build for lakersnation</li></ul>"
   }
 }

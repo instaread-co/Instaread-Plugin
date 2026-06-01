@@ -435,11 +435,38 @@ class InstareadPlayer {
                 $this->log('Cleared Swift Performance assets cache.');
             }
 
+            // --- NitroPack (FULL purge required) ---
+            // NitroPack caches both rendered HTML AND proxies external scripts to
+            // its CDN (cdn-*.nitrocdn.com). Even with our scripts excluded from
+            // optimization, the cached HTML contains the previously-proxied URLs.
+            // Observed on lakersnation 2026-05 to 2026-06: site stayed on the
+            // NitroPack-proxied script for days after the plugin upgraded.
+            // No targeted JS-only purge exists — must do a full purge.
+            // Try the most specific available helper, fall back to the WP action.
+            $purged_nitro = false;
+            if (function_exists('nitropack_sdk_purge_all')) {
+                nitropack_sdk_purge_all();
+                $purged_nitro = true;
+                $this->log('Purged NitroPack via nitropack_sdk_purge_all().');
+            } elseif (function_exists('nitropack_purge_all')) {
+                nitropack_purge_all();
+                $purged_nitro = true;
+                $this->log('Purged NitroPack via nitropack_purge_all().');
+            } elseif (has_action('nitropack_integration_purge_all')) {
+                do_action('nitropack_integration_purge_all');
+                $purged_nitro = true;
+                $this->log('Purged NitroPack via nitropack_integration_purge_all action.');
+            } elseif (class_exists('NitroPack\\WordPress\\NitroPack')) {
+                // Last-resort: NitroPack is present but no documented helper found.
+                // Surface this so we know to extend coverage if a partner reports stale HTML.
+                $this->log('NitroPack detected but no purge helper available; HTML may stay cached until manual purge.');
+            }
+
             // Plugins without targeted JS-only purge APIs (SiteGround, Hummingbird,
-            // WP Super Cache, Cache Enabler, NitroPack, Breeze, Comet Cache) are
-            // intentionally skipped here. Their page caches will naturally serve
-            // correct content because init_optimization_exclusions() already excludes
-            // Instaread scripts from minification/combination.
+            // WP Super Cache, Cache Enabler, Breeze, Comet Cache) are intentionally
+            // skipped here. Their page caches will naturally serve correct content
+            // because init_optimization_exclusions() already excludes Instaread
+            // scripts from minification/combination.
 
         } catch (\Exception $e) {
             $this->log('Cache clear error (non-fatal): ' . $e->getMessage());

@@ -441,25 +441,52 @@ class InstareadPlayer {
             // optimization, the cached HTML contains the previously-proxied URLs.
             // Observed on lakersnation 2026-05 to 2026-06: site stayed on the
             // NitroPack-proxied script for days after the plugin upgraded.
-            // No targeted JS-only purge exists — must do a full purge.
-            // Try the most specific available helper, fall back to the WP action.
-            $purged_nitro = false;
-            if (function_exists('nitropack_sdk_purge_all')) {
-                nitropack_sdk_purge_all();
-                $purged_nitro = true;
-                $this->log('Purged NitroPack via nitropack_sdk_purge_all().');
-            } elseif (function_exists('nitropack_purge_all')) {
-                nitropack_purge_all();
-                $purged_nitro = true;
-                $this->log('Purged NitroPack via nitropack_purge_all().');
-            } elseif (has_action('nitropack_integration_purge_all')) {
+            //
+            // NitroPack's PHP API changed names across plugin versions. Fire all
+            // known purge entry points unconditionally — at most one succeeds, the
+            // rest no-op silently. The do_action() calls are safe even when no
+            // listener is registered (WP just iterates an empty queue).
+            $nitro_detected = class_exists('NitroPack\\WordPress\\NitroPack')
+                || class_exists('NitroPack\\NitroPack')
+                || function_exists('nitropack_sdk_purge_all')
+                || function_exists('nitropack_purge_all');
+
+            if ($nitro_detected) {
+                // 1. Older helper functions (NitroPack < 2.x)
+                if (function_exists('nitropack_sdk_purge_all')) {
+                    @nitropack_sdk_purge_all();
+                    $this->log('Called nitropack_sdk_purge_all().');
+                }
+                if (function_exists('nitropack_purge_all')) {
+                    @nitropack_purge_all();
+                    $this->log('Called nitropack_purge_all().');
+                }
+
+                // 2. Canonical action hook (NitroPack 2.x+). Always fire — listener
+                //    is registered by NitroPack at plugin init regardless of our
+                //    call order, so has_action() may underreport in shutdown phases.
                 do_action('nitropack_integration_purge_all');
-                $purged_nitro = true;
-                $this->log('Purged NitroPack via nitropack_integration_purge_all action.');
-            } elseif (class_exists('NitroPack\\WordPress\\NitroPack')) {
-                // Last-resort: NitroPack is present but no documented helper found.
-                // Surface this so we know to extend coverage if a partner reports stale HTML.
-                $this->log('NitroPack detected but no purge helper available; HTML may stay cached until manual purge.');
+                $this->log('Fired do_action(nitropack_integration_purge_all).');
+
+                // 3. NitroPack singleton (current namespaced API). Wrapped in
+                //    method_exists because the method name changed once
+                //    (purgeCache → purgeAllCache).
+                if (class_exists('NitroPack\\WordPress\\NitroPack')) {
+                    try {
+                        $instance = call_user_func(['NitroPack\\WordPress\\NitroPack', 'getInstance']);
+                        if (is_object($instance)) {
+                            if (method_exists($instance, 'purgeAllCache')) {
+                                $instance->purgeAllCache();
+                                $this->log('Called NitroPack::purgeAllCache().');
+                            } elseif (method_exists($instance, 'purgeCache')) {
+                                $instance->purgeCache();
+                                $this->log('Called NitroPack::purgeCache().');
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        $this->log('NitroPack instance purge failed (non-fatal): ' . $e->getMessage());
+                    }
+                }
             }
 
             // Plugins without targeted JS-only purge APIs (SiteGround, Hummingbird,

@@ -10,11 +10,24 @@ End-to-end playbook for adding a new partner to the Instaread WordPress plugin. 
 ## Inputs you need from the user
 
 1. **Article URL** (a real published post, not the homepage)
-2. **partner_id / publication** name (e.g. `boxrox`, `independentng`). Usually the domain without TLD. The user may specify it explicitly — if they do, use exactly that.
-3. **Desired player position** (e.g. "above the first `<p>`", "after the byline", "inside the existing slot")
-4. **Style breakpoints** if non-standard (default below)
+2. **partner_id** — directory name + identifier inside this plugin repo (e.g. `boxrox`, `independentng`, `thisdayinbaseball`). Usually the domain without TLD/dots. The user may specify it explicitly — if they do, use exactly that.
+3. **publication** — name of the JS bundle at `player.instaread.co/js/instaread.<publication>.js`. **This is OFTEN DIFFERENT from partner_id.** Examples observed:
+   - `partner_id: independentng`, `publication: independent` (bundle is `instaread.independent.js`)
+   - `partner_id: thisdayinbaseball`, `publication: thisdayinbaseball` (but the site is `thisdayinsport.com` too — uses `dynamic_publication_from_host: true`)
+   - `partner_id: hangman`, `publication: ""` (multiple-domain partner, `dynamic_publication_from_host: true`)
+   - Most partners: `partner_id == publication` (boxrox, asamnews, sixtyandme, etc.)
+   **Always ask the user OR verify the bundle exists at `https://player.instaread.co/js/instaread.<publication>.js` returns HTTP 200 before shipping.** A wrong publication name means the JS bundle 404s and player never loads.
+4. **Desired player position** (e.g. "above the first `<p>`", "after the byline", "inside the existing slot")
+5. **Style breakpoints** if non-standard (default below)
 
-If the user only gives a URL, infer partner_id from the domain and confirm before releasing.
+If the user only gives a URL, infer partner_id from the domain and **confirm the publication name with the user** before releasing.
+
+### Quick bundle-name check
+```bash
+# Verify the canonical bundle exists before shipping
+curl -sI --max-time 10 "https://player.instaread.co/js/instaread.<publication>.js" | head -3
+# Expect: HTTP/2 200, content-type text/javascript, non-zero content-length
+```
 
 ---
 
@@ -200,6 +213,28 @@ Confirm install via telemetry:
 curl -sS https://player-api.instaread.co/api/plugin-telemetry | \
   python3 -c "import json,sys; rows=[r for r in json.load(sys.stdin) if r['partner_id']=='<id>']; print(rows[-3:])"
 ```
+
+### Why visitors still see the old version after install
+
+After the plugin updates, **regular visitors keep seeing OLD HTML** for hours because of Cloudflare's edge HTML cache. Compare these two fetches:
+
+```bash
+# what real visitors see (cached)
+curl -sI -A "Mozilla/5.0" "https://<partner>/<article>/" | grep -iE "cf-cache-status|age|instaread-version"
+# expect: cf-cache-status: HIT, age: <large>, meta tag with OLD version
+
+# what origin currently emits (fresh)
+curl -sI -A "Mozilla/5.0" "https://<partner>/<article>/?_=$(date +%s%N)" | grep -iE "cf-cache-status|age"
+# expect: cf-cache-status: MISS, fresh version
+```
+
+If origin already serves the new version but visitors get old HTML, **the partner admin must purge Cloudflare**:
+- Cloudflare dashboard → Caching → Configuration → **"Purge Everything"** (or purge the specific URL).
+- Without purge, visitors get the update gradually as cache entries expire (1–4 hours typical TTL).
+
+`clear_page_cache_on_upgrade: true` in our config flushes WP-level caches (WP Rocket / LiteSpeed / Autoptimize) but NOT Cloudflare — that's a separate CDN we don't have credentials for. Same applies to NitroPack-fronted sites (purge from NitroPack admin in wp-admin).
+
+In your handoff message to the partner, always include the cache-purge step.
 
 ---
 

@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - independentng",
-  "version": "4.7.2",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/independentng-v4.7.2/independentng-v4.7.2.zip",
+  "version": "4.7.3",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/independentng-v4.7.3/independentng-v4.7.3.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.2</h4><ul><li>Partner-specific build for independentng</li></ul>"
+    "changelog": "<h4>4.7.3</h4><ul><li>Fix player not rendering on independent.ng — Soledad theme bypasses the_content filter for our handler, so the server-side selector match never runs. Enable wp_footer JS fallback (.entry-content target) to inject the player slot client-side. Also corrects the publication name to 'independent' (matches the canonical bundle at player.instaread.co/js/instaread.independent.js).</li></ul>"
   }
 }

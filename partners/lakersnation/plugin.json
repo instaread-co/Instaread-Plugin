@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.4</h4><ul><li>Auto-purge NitroPack cache on plugin upgrade so HTML refreshes immediately and stops serving the previously-proxied script URL. Was a manual step before; now built in.</li></ul>"
+    "changelog": "<h4>4.7.4</h4><ul><li>Partner-specific build for lakersnation</li></ul>"
   }
 }

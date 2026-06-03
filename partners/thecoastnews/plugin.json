@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.2</h4><ul><li>Initial release for thecoastnews.com.</li></ul>"
+    "changelog": "<h4>4.7.2</h4><ul><li>Partner-specific build for thecoastnews</li></ul>"
   }
 }

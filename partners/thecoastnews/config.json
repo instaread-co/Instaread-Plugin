@@ -1,0 +1,31 @@
+{
+  "partner_id": "thecoastnews",
+  "domain": "thecoastnews.com",
+  "publication": "thecoastnews",
+  "injection_context": "post",
+  "injection_strategy": "first",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true,
+  "enqueue_remote_player_script_sitewide": true,
+  "injection_rules": [
+    {
+      "target_selector": ".entry-content",
+      "insert_position": "prepend",
+      "exclude_slugs": [
+        "/",
+        "/privacy-policy/",
+        "/terms-of-service/",
+        "/about/",
+        "/about-us/",
+        "/contact/",
+        "/contact-us/",
+        "/advertise/",
+        "/shop/",
+        "/cart/",
+        "/checkout/",
+        "/my-account/"
+      ]
+    }
+  ],
+  "version": "4.7.2"
+}

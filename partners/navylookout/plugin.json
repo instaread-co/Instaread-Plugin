@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - navylookout",
-  "version": "4.7.3",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/navylookout-v4.7.3/navylookout-v4.7.3.zip",
+  "version": "4.7.4",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/navylookout-v4.7.4/navylookout-v4.7.4.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.3</h4><ul><li>Partner-specific build for navylookout</li></ul>"
+    "changelog": "<h4>4.7.4</h4><ul><li>Partner-specific build for navylookout</li></ul>"
   }
 }

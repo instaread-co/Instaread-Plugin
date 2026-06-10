@@ -9,8 +9,8 @@
   "enqueue_remote_player_script_sitewide": true,
   "injection_rules": [
     {
-      "target_selector": ".entry-content p",
-      "insert_position": "before_element",
+      "target_selector": ".wp-block-paragraph",
+      "insert_position": "after_element",
       "exclude_slugs": [
         "/",
         "/privacy-policy/",
@@ -29,5 +29,5 @@
       ]
     }
   ],
-  "version": "4.7.2"
+  "version": "4.7.3"
 }

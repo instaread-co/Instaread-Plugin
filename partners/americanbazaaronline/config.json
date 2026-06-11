@@ -1,7 +1,7 @@
 {
   "partner_id": "americanbazaaronline",
   "domain": "americanbazaaronline.com",
-  "publication": "navamericanbazaaronlineylookout",
+  "publication": "americanbazaaronline",
   "injection_context": "post",
   "injection_strategy": "first",
   "force_disable_logs": true,
@@ -30,5 +30,5 @@
       ]
     }
   ],
-  "version": "4.7.7"
+  "version": "4.7.8"
 }

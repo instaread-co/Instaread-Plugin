@@ -216,7 +216,7 @@ curl -sS https://player-api.instaread.co/api/plugin-telemetry | \
 
 ### Why visitors still see the old version after install
 
-After the plugin updates, **regular visitors keep seeing OLD HTML** for hours because of Cloudflare's edge HTML cache. Compare these two fetches:
+After the plugin updates, **regular visitors keep seeing OLD HTML** for hours because of edge HTML caches (Cloudflare, Ezoic, NitroPack). Compare these two fetches:
 
 ```bash
 # what real visitors see (cached)
@@ -228,13 +228,33 @@ curl -sI -A "Mozilla/5.0" "https://<partner>/<article>/?_=$(date +%s%N)" | grep 
 # expect: cf-cache-status: MISS, fresh version
 ```
 
-If origin already serves the new version but visitors get old HTML, **the partner admin must purge Cloudflare**:
+If origin already serves the new version but visitors get old HTML, **the partner admin must purge their CDN**:
 - Cloudflare dashboard → Caching → Configuration → **"Purge Everything"** (or purge the specific URL).
+- Ezoic dashboard → Speed → CDN Settings → **"Clear cache"**.
+- NitroPack: wp-admin → NitroPack → Purge Cache (or Pagely dashboard for drop-in mode).
 - Without purge, visitors get the update gradually as cache entries expire (1–4 hours typical TTL).
 
-`clear_page_cache_on_upgrade: true` in our config flushes WP-level caches (WP Rocket / LiteSpeed / Autoptimize) but NOT Cloudflare — that's a separate CDN we don't have credentials for. Same applies to NitroPack-fronted sites (purge from NitroPack admin in wp-admin).
+`clear_page_cache_on_upgrade: true` in our config flushes WP-level caches (WP Rocket / LiteSpeed / Autoptimize) but NOT external CDNs — we don't have credentials for them.
 
 In your handoff message to the partner, always include the cache-purge step.
+
+### Cache-buster query params per CDN (verify fast without waiting for TTL)
+
+When a partner reports "still not seeing it," before asking them to purge — try a cache-buster URL in the browser. If the player appears with the buster but not without, it's pure cache staleness; the fix is already deployed.
+
+| Partner uses | Cache-buster that bypasses it | Notes |
+|---|---|---|
+| Cloudflare | `?_=12345` (any unknown query) | Default behavior; respects query string |
+| **Ezoic** | **`?_ez=1`** | Ezoic's internal bypass; confirmed working on **thecoastnews** (PenNews + Cloudflare + Ezoic stack) |
+| NitroPack | `?nocache=1` | Plus `Cache-Control: no-cache` header |
+| Generic / any | `?cb=$(date +%s)` | Works against most edge caches |
+
+**TTL expectations** (typical, before natural expiry):
+- Cloudflare HTML: 1–4 hours
+- Ezoic edge (level 1): ~2 hours (see `ezcache_level` in their `_ezaq` telemetry block)
+- NitroPack: 24h+ (must be manually purged in most cases)
+
+**Detecting Ezoic** in pasted HTML: look for `__ez`, `_ezaq`, `ezoicTestActive`, or `edge_cache_status` in `<script>` tags. Cookies prefixed `ezoab_`/`ezoadgid_`/`active_template` are also Ezoic.
 
 ---
 
@@ -243,7 +263,7 @@ In your handoff message to the partner, always include the cache-purge step.
 | Symptom | Cause | Fix |
 |---|---|---|
 | `curl` returns 403 / "Just a moment..." | Cloudflare bot challenge | Use a browser; work from pasted DOM. [[cloudflare_cache_verification]] |
-| Site shows old version after update | Cloudflare/NitroPack HTML cache | Cache-bust URL to verify; ask partner to purge their CDN cache |
+| Site shows old version after update | Cloudflare / Ezoic / NitroPack HTML cache | Cache-bust URL to verify: `?_=12345` (Cloudflare), `?_ez=1` (Ezoic), `?nocache=1` (NitroPack). If player appears with buster, ask partner to purge their CDN |
 | Player script loads from `cdn-*.nitrocdn.com` not `player.instaread.co` | NitroPack proxies scripts; ignores `data-no-optimize` | Core emits `data-nitro-exclude` (added v4.7.3). Ensure partner is on a build that has it + purge NitroPack |
 | After plugin update, `x-nitro-cache: HIT` + `x-nitro-rev:` stays the same | NitroPack still serves pre-update cached HTML. Core's auto-purge (v4.7.4+) tries 4 NitroPack PHP entry points but doesn't reach Pagely's drop-in NitroPack mode (`x-nitro-cache-from: drop-in`) | **DO NOT ship more guesses** — Pagely-drop-in NitroPack uses an undocumented API. Ask partner to purge ONCE manually from wp-admin → NitroPack → Purge Cache (or Pagely dashboard). After that, v4.7.3+ HTML emits `data-nitro-exclude` so future cache rebuilds stay clean |
 | `<instaread-player>` tag present but no audio player renders | Publication bundle (`instaread.<pub>.js`) hybrid-markup handling, OR JS bundle didn't load | Check `enqueue_remote_player_script_sitewide: true`; check console for bundle logs. Bundle source: `prod-projects/Instaread Website/player-ui/src/main/webapp/js/instaread.<pub>.js` |

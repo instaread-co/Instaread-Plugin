@@ -4,6 +4,7 @@
     "publication": "roadcc",
     "injection_context": "post",
     "injection_strategy": "first",
+    "enqueue_remote_player_script_sitewide": true,
     "injection_rules": [
         {
             "target_selector": ".full__title",
@@ -75,7 +76,7 @@
             ]
         }
     ],
-    "version": "4.6.0",
+    "version": "4.6.1",
     "force_disable_logs": true,
     "clear_page_cache_on_upgrade": true
 }

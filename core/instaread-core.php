@@ -929,7 +929,7 @@ class InstareadPlayer {
             'instaread_main',
             [
                 'key'         => 'suppress_urls',
-                'description' => 'One URL path per line (e.g. /about, /contact/us). The player will not appear on these pages.',
+                'description' => 'Please paste the complete URL for suppressing the player. For adding multiple URLs, please paste each URL on another line.',
             ]
         );
         $this->log('Registered WP admin settings');

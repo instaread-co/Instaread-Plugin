@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.3</h4><ul><li>Enqueue remote player script sitewide</li><li>Use tagDiv Newspaper theme selector with footer JS fallback</li><li>Clean up exclude_slugs</li></ul>"
+    "changelog": "<h4>4.7.3</h4><ul><li>Partner-specific build for portcitydaily</li></ul>"
   }
 }

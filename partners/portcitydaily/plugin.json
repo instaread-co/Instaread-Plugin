@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - portcitydaily",
-  "version": "4.7.3",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/portcitydaily-v4.7.3/portcitydaily-v4.7.3.zip",
+  "version": "4.7.4",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/portcitydaily-v4.7.4/portcitydaily-v4.7.4.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.3</h4><ul><li>Partner-specific build for portcitydaily</li></ul>"
+    "changelog": "<h4>4.7.4</h4><ul><li>Switch to .tdb_single_content selector — previous selector matched header mobile menu instead of article body</li></ul>"
   }
 }

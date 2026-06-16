@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.5</h4><ul><li>Emit publication bundle script directly in footer fallback (Newspaper theme strips wp_footer script queue)</li></ul>"
+    "changelog": "<h4>4.7.5</h4><ul><li>Partner-specific build for portcitydaily</li></ul>"
   }
 }

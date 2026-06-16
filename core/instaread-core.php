@@ -1472,6 +1472,23 @@ class InstareadPlayer {
             wp_json_encode($target),
             wp_json_encode($slot_html)
         );
+
+        // Some themes (e.g. tagDiv Newspaper with custom tdb-template builder) skip the
+        // normal wp_footer script queue, so wp_enqueue_script('instaread-remote-player')
+        // never prints. When footer JS fallback is active AND sitewide enqueue is opted in,
+        // we know wp_footer IS firing (this method runs on it) but wp_print_footer_scripts
+        // may be dropped — emit the publication bundle directly so the player can render.
+        if ($this->should_enqueue_remote_player_script_sitewide()
+            && !wp_script_is('instaread-remote-player', 'done')
+            && empty($this->partner_config['isPlaylist'])) {
+            if ($this->should_use_player_loader()) {
+                echo $this->get_inline_playerv3_script_tag();
+            } else {
+                echo $this->get_inline_instaread_player_script_tag($publication);
+            }
+            $this->log('Footer fallback: emitted raw bundle script tag (wp_footer script queue bypassed).');
+        }
+
         $this->log('Footer fallback: injected client-side player into ' . $target);
     }
 

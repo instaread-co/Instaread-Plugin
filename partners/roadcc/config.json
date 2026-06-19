@@ -7,8 +7,8 @@
     "enqueue_remote_player_script_sitewide": true,
     "injection_rules": [
         {
-            "target_selector": ".full__title",
-            "insert_position": "before_element",
+            "target_selector": ".post-content",
+            "insert_position": "prepend",
             "exclude_slugs": [
                 "/",
                 "/category/rumors/",
@@ -76,7 +76,7 @@
             ]
         }
     ],
-    "version": "4.6.1",
+    "version": "4.6.2",
     "force_disable_logs": true,
     "clear_page_cache_on_upgrade": true
 }

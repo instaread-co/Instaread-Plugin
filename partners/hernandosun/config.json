@@ -7,10 +7,12 @@
   "force_disable_logs": true,
   "clear_page_cache_on_upgrade": true,
   "enqueue_remote_player_script_sitewide": true,
+  "enable_footer_js_fallback": true,
+  "footer_js_fallback_selector": ".tdb_single_content",
   "injection_rules": [
     {
-      "target_selector": ".tdb-block-inner.td-fix-index",
-      "insert_position": "before_element",
+      "target_selector": ".tdb_single_content",
+      "insert_position": "prepend",
       "exclude_slugs": [
         "/",
         "/privacy-policy/",
@@ -29,5 +31,5 @@
       ]
     }
   ],
-  "version": "4.7.2"
+  "version": "4.7.5"
 }

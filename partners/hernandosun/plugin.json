@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.5</h4><ul><li>Switch to .tdb_single_content selector (Newspaper theme — previous selector matched header mobile menu)</li><li>Enable footer JS fallback</li><li>Pick up core fix: emit bundle script in footer fallback</li></ul>"
+    "changelog": "<h4>4.7.5</h4><ul><li>Partner-specific build for hernandosun</li></ul>"
   }
 }

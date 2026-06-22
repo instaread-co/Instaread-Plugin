@@ -1,0 +1,10 @@
+{
+  "name": "Instaread Audio Player - swimswam",
+  "version": "4.7.5",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/swimswam-v4.7.5/swimswam-v4.7.5.zip",
+  "requires": "5.6",
+  "tested": "6.5",
+  "sections": {
+    "changelog": "<h4>4.7.5</h4><ul><li>Partner-specific build for swimswam</li></ul>"
+  }
+}

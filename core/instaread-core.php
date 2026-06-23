@@ -219,9 +219,21 @@ class InstareadPlayer {
         $this->add_array_exclusion('litespeed_optm_js_defer_exc', $pattern);
 
         // --- SiteGround Optimizer ---
-        $this->add_array_exclusion('sgo_javascript_combine_excluded', $pattern);
-        $this->add_array_exclusion('sgo_js_minify_excluded', $pattern);
-        $this->add_array_exclusion('sgo_js_async_excluded', $pattern);
+        // CRITICAL: SiteGround matches these exclusion lists against the script's
+        // registered HANDLE, not its URL. Pushing the 'instaread.co' URL fragment alone
+        // never matches handle 'instaread-remote-player', so SG's "Combine JavaScript"
+        // merged our enqueued tag into siteground-optimizer-combined-js-*.js and then
+        // DROPPED it (it cannot inline a cross-origin player.instaread.co file). Result
+        // observed on iowaspulse 2026-06: slot present but instaread.{publication}.js gone,
+        // while non-SG partners (oann, dailysignal, singletrackworld) were unaffected.
+        // Fix: exclude by HANDLE. Keep the URL pattern too — harmless for any SG version
+        // that does match on URL.
+        $sg_handles = ['instaread-remote-player', 'instaread-player-loader', 'instaread-partner-js'];
+        foreach (array_merge($sg_handles, [$pattern]) as $sg_exclusion) {
+            $this->add_array_exclusion('sgo_javascript_combine_excluded', $sg_exclusion);
+            $this->add_array_exclusion('sgo_js_minify_excluded', $sg_exclusion);
+            $this->add_array_exclusion('sgo_js_async_excluded', $sg_exclusion);
+        }
 
         // --- Hummingbird (WPMU Dev) ---
         add_filter('wphb_minify_resource', function ($minify, $handle) {

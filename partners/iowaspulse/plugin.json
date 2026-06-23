@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - iowaspulse",
-  "version": "4.6.1",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.6.1/iowaspulse-v4.6.1.zip",
+  "version": "4.6.2",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.6.2/iowaspulse-v4.6.2.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.1</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
+    "changelog": "<h4>4.6.2</h4><ul><li>Fix: exclude Instaread player script from SiteGround Optimizer JS combine by handle (script was being dropped on SiteGround sites)</li></ul>"
   }
 }

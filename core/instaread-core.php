@@ -489,11 +489,55 @@ class InstareadPlayer {
                 }
             }
 
-            // Plugins without targeted JS-only purge APIs (SiteGround, Hummingbird,
-            // WP Super Cache, Cache Enabler, Breeze, Comet Cache) are intentionally
-            // skipped here. Their page caches will naturally serve correct content
-            // because init_optimization_exclusions() already excludes Instaread
-            // scripts from minification/combination.
+            // --- SiteGround Optimizer (FULL dynamic + file cache purge) ---
+            // SiteGround caches the rendered HTML in its dynamic cache (NGINX) and
+            // file-based cache. When our enqueued player script is dropped/skipped by
+            // SiteGround's JS combine/defer at the moment a page is cached, the stale
+            // HTML keeps serving WITHOUT the script even though our exclusion filters
+            // are registered — the exclusions only apply when the tag is re-rendered.
+            // Observed on iowaspulse 2026-06: <instaread-player> slot present but
+            // instaread.{publication}.js missing because the page was a stale SG cache.
+            //
+            // Only runs when clear_page_cache_on_upgrade is true (opt-in) because a
+            // full SG purge forces every URL to re-render on next visit. SiteGround's
+            // PHP API has changed names across versions, so fire all known entry points
+            // unconditionally — at most one succeeds, the rest no-op silently.
+            if ($clear_page_cache) {
+                // 1. Helper function (SG Optimizer all versions)
+                if (function_exists('sg_cachepress_purge_cache')) {
+                    @sg_cachepress_purge_cache();
+                    $this->log('Purged SiteGround cache (sg_cachepress_purge_cache).');
+                }
+
+                // 2. Supercacher class (namespaced API, SG Optimizer 5.x+).
+                //    Method name differs across versions: purge_everything (full)
+                //    or purge_cache (current request scope). Prefer the broadest.
+                if (class_exists('SiteGround_Optimizer\\Supercacher\\Supercacher')) {
+                    try {
+                        $sg = 'SiteGround_Optimizer\\Supercacher\\Supercacher';
+                        if (method_exists($sg, 'purge_everything')) {
+                            call_user_func([$sg, 'purge_everything']);
+                            $this->log('Purged SiteGround Supercacher::purge_everything().');
+                        } elseif (method_exists($sg, 'purge_cache')) {
+                            call_user_func([$sg, 'purge_cache']);
+                            $this->log('Purged SiteGround Supercacher::purge_cache().');
+                        }
+                    } catch (\Throwable $e) {
+                        $this->log('SiteGround Supercacher purge failed (non-fatal): ' . $e->getMessage());
+                    }
+                }
+
+                // 3. Action hooks — fired unconditionally; safe with no listener.
+                do_action('sg_cachepress_purge_cache');
+                do_action('siteground_optimizer_flush_cache');
+                $this->log('Fired SiteGround purge action hooks.');
+            }
+
+            // Plugins without targeted JS-only purge APIs (Hummingbird, WP Super Cache,
+            // Cache Enabler, Breeze, Comet Cache) are intentionally skipped here. Their
+            // page caches will naturally serve correct content because
+            // init_optimization_exclusions() already excludes Instaread scripts from
+            // minification/combination.
 
         } catch (\Exception $e) {
             $this->log('Cache clear error (non-fatal): ' . $e->getMessage());

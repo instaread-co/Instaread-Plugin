@@ -235,6 +235,23 @@ class InstareadPlayer {
             $this->add_array_exclusion('sgo_js_async_excluded', $sg_exclusion);
         }
 
+        // Belt-and-braces: even when SG's option-based exclusion is honored, its
+        // Combine_Js still occasionally combines instaread.{publication}.js into
+        // siteground-optimizer-combined-js-*.js — observed on iowaspulse v4.7.6
+        // 2026-06-23, where the bundle code was inlined into SG's combined file
+        // (going stale on next bundle update) and `<script src="player.instaread.co/...">`
+        // disappeared from the rendered HTML. Hook script_loader_tag to inject
+        // data-no-combine + data-no-optimize directly onto OUR enqueued <script>
+        // tag — SG's HTML processor honors these attributes on emitted tags.
+        add_filter('script_loader_tag', function ($tag, $handle) use ($sg_handles) {
+            if (!in_array($handle, $sg_handles, true)) return $tag;
+            // Add data-no-combine / data-no-optimize if not already present.
+            if (strpos($tag, 'data-no-combine') === false) {
+                $tag = str_replace('<script ', '<script data-no-combine="1" data-no-optimize="1" ', $tag);
+            }
+            return $tag;
+        }, 10, 2);
+
         // --- Hummingbird (WPMU Dev) ---
         add_filter('wphb_minify_resource', function ($minify, $handle) {
             return strpos((string) $handle, 'instaread') !== false ? false : $minify;

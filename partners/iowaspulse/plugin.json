@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - iowaspulse",
-  "version": "4.7.6",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.7.6/iowaspulse-v4.7.6.zip",
+  "version": "4.7.7",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.7.7/iowaspulse-v4.7.7.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.6</h4><ul><li>Exclude bundle script from SiteGround Optimizer JS-combine (data-no-combine attr)</li></ul>"
+    "changelog": "<h4>4.7.7</h4><ul><li>Force data-no-combine attribute onto enqueued instaread script via script_loader_tag so SiteGround Optimizer cannot combine it (option-based handle exclusion alone proved insufficient)</li></ul>"
   }
 }

@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.2</h4><ul><li>Fix: exclude Instaread player script from SiteGround Optimizer JS combine by handle (script was being dropped on SiteGround sites)</li></ul>"
+    "changelog": "<h4>4.6.2</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
   }
 }

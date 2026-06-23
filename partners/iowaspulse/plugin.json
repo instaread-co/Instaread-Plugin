@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.7</h4><ul><li>Force data-no-combine attribute onto enqueued instaread script via script_loader_tag so SiteGround Optimizer cannot combine it (option-based handle exclusion alone proved insufficient)</li></ul>"
+    "changelog": "<h4>4.7.7</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
   }
 }

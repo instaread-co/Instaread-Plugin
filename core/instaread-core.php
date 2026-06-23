@@ -1241,6 +1241,16 @@ class InstareadPlayer {
      *
      * Filter: instaread_enqueue_remote_player_script — return false to disable; receives settings and partner_config.
      */
+    private function is_siteground_optimizer_active() {
+        // Detect SG Optimizer plugin via its main class or its option presence.
+        if (defined('SG_OPTIMIZER_VERSION')) return true;
+        if (class_exists('\\SiteGround_Optimizer\\Loader\\Loader')) return true;
+        if (class_exists('\\SiteGround_Optimizer\\Helper\\Helper')) return true;
+        // Fallback: option key set when SG Optimizer activates JS combine.
+        $combine = get_option('siteground_optimizer_combine_javascript');
+        return $combine === '1' || $combine === 1 || $combine === true;
+    }
+
     private function maybe_enqueue_remote_instaread_player_script() {
         if (is_admin() || is_feed()) {
             return;
@@ -1252,6 +1262,27 @@ class InstareadPlayer {
             return;
         }
         if (!$this->should_enqueue_remote_player_script_sitewide()) {
+            return;
+        }
+
+        // SiteGround Optimizer escape hatch: SG hooks wp_print_footer_scripts at high
+        // priority and pulls scripts straight out of wp_scripts()->queue BEFORE WP
+        // renders them — script_loader_tag never fires, exclusion lists are ignored
+        // for our cross-origin URL, and our bundle ends up inlined inside
+        // siteground-optimizer-combined-js-*.js (going stale on every player.instaread.co
+        // update). When SG Optimizer is active, bypass wp_enqueue_script entirely and
+        // emit a raw <script> tag with data-no-combine on wp_footer. SG's HTML processor
+        // honors that attribute on raw tags.
+        if ($this->is_siteground_optimizer_active()) {
+            add_action('wp_footer', function () {
+                if (!empty($this->partner_config['isPlaylist'])) return;
+                if ($this->should_use_player_loader()) {
+                    echo $this->get_inline_playerv3_script_tag();
+                } else {
+                    echo $this->get_inline_instaread_player_script_tag($this->get_resolved_publication());
+                }
+            }, 5);
+            $this->log('SG Optimizer detected: emitting raw bundle <script> on wp_footer (bypassing wp_enqueue_script).');
             return;
         }
 

@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - iowaspulse",
-  "version": "4.7.7",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.7.7/iowaspulse-v4.7.7.zip",
+  "version": "4.7.8",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.7.8/iowaspulse-v4.7.8.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.7</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
+    "changelog": "<h4>4.7.8</h4><ul><li>SiteGround Optimizer escape hatch: when SG is active, bypass wp_enqueue_script and emit raw bundle script on wp_footer so SG cannot combine it into siteground-optimizer-combined-js-*.js</li></ul>"
   }
 }

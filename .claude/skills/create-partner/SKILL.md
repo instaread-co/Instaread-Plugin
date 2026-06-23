@@ -269,8 +269,69 @@ When a partner reports "still not seeing it," before asking them to purge — tr
 | `<instaread-player>` tag present but no audio player renders | Publication bundle (`instaread.<pub>.js`) hybrid-markup handling, OR JS bundle didn't load | Check `enqueue_remote_player_script_sitewide: true`; check console for bundle logs. Bundle source: `prod-projects/Instaread Website/player-ui/src/main/webapp/js/instaread.<pub>.js` |
 | TWO players on the page | Publication bundle builds its own `.playerContainer` AND ignores the plugin's `.instaread-player-slot` | Patch the bundle to reuse `.instaread-player-slot` (see lakersnation fix) |
 | Plugin loaded (meta tag) but ZERO `<instaread-player>` anywhere | Theme bypasses `the_content` filter | Switch to Pattern C (footer JS fallback) |
+| Slot+player tag IN DOM, but iframe doesn't render. `instaread.<pub>.js` missing from network. Combined-js file `siteground-optimizer-combined-js-*.js` is in page. | **SiteGround Optimizer** "Combine JavaScript Files" inlined our bundle into the combined file, then dropped the original cross-origin `<script src="player.instaread.co/...">` from the rendered HTML. Often the combined file has a syntax error (duplicate-identifier from minify collisions) and ALL site JS dies. v4.7.6–v4.7.9 layered attempts (data-no-combine, script_loader_tag, raw echo on wp_footer, createElement IIFE) all failed because SG's HTML-output rewriter still saw the URL. v4.7.10+ pushes exclusions to the **real** SG filter names (we'd been pushing to a non-existent filter for years). | Ensure partner is on v4.7.10+. After upgrade, hit force-update URL + visit any wp-admin page to fire `clear_page_cache_on_upgrade` which purges SG. Verify: combined-js file no longer contains `class InstareadPlayer`, network tab shows `instaread.<pub>.js` direct from `player.instaread.co`. See SiteGround Optimizer section below. |
 | WordPress perpetually shows "Update available" | config.json version lagged plugin.json version | Workflow now syncs both; ensure config.json version == plugin.json version |
 | `sites_notified: 0` in webhook | Site never sent telemetry (not registered) | Normal for brand-new partners; first install registers it. Update arrives via 12h WP cron until then |
+
+## SiteGround Optimizer ("sg-cachepress" plugin) — JS Combine gotcha
+
+SG Optimizer is shipped pre-installed on SiteGround-hosted WordPress sites. When the **"Combine JavaScript Files"** setting is ON, SG concatenates enqueued JS into `wp-content/uploads/siteground-optimizer-assets/siteground-optimizer-combined-js-<hash>.js` and strips the originals from the rendered HTML. This includes our cross-origin `instaread.<pub>.js` bundle — which SG inlines into the combined file (so it goes stale on player.instaread.co updates) and sometimes also produces a syntax-error combined file that kills ALL site JS.
+
+### The exclusion filter trap (fixed in v4.7.10)
+
+The plugin used to push exclusions to a filter named `sgo_javascript_combine_excluded` (with trailing `d`). **That filter does not exist in SG's code.** v4.7.6–v4.7.9 layered escalating workarounds (data-no-combine attr, `script_loader_tag` filter, raw `<script>` echo on wp_footer, dynamic createElement IIFE) — all failed for the same reason: SG's URL scanner caught the URL no matter how we emitted the tag.
+
+The **real** filter names — reverse-engineered from `plugins.svn.wordpress.org/sg-cachepress/trunk/core/Combinator/Js_Combinator.php`:
+
+| Filter | Excludes by |
+|---|---|
+| `sgo_javascript_combine_exclude` (no `d`) | Script HANDLES |
+| `sgo_javascript_combine_exclude_ids` | Script IDs (e.g. `instaread-remote-player-js`) |
+| **`sgo_javascript_combine_excluded_external_paths`** | **Cross-origin URL fragments** ← use this for `player.instaread.co` |
+| `sgo_javascript_combine_excluded_internal_paths` | Same-origin URL fragments |
+| `sgo_javascript_combine_excluded_inline_content` | Markers to skip inline scripts (e.g. `instaread-player-slot`) — important because SG's combine breaks `document.currentScript.previousElementSibling` semantics |
+| `sgo_javascript_async_exclude` | Skip from async/defer |
+
+v4.7.10 pushes to all of these correctly. Older versions silently fail — exclusion does nothing.
+
+### Verifying the fix worked
+
+After install + cache purge:
+
+```bash
+# 1. Confirm bundle now loads from player.instaread.co directly (not combined)
+curl -s -A "Mozilla/5.0 ... Safari/605" "https://<partner>/<article>/?cb=$(date +%s)" | \
+  grep -oE '<script[^>]*src="[^"]*instaread[^"]*"'
+# expect: <script ... src="https://player.instaread.co/js/instaread.<pub>.js">
+
+# 2. Confirm SG combined-js file no longer contains our bundle
+COMBINED=$(curl -s "...?cb=$(date +%s)" | grep -oE 'siteground-optimizer-combined-js-[a-f0-9]+\.js' | head -1)
+curl -s "https://<partner>/wp-content/uploads/siteground-optimizer-assets/$COMBINED" | grep -c 'class InstareadPlayer'
+# expect: 0
+```
+
+### Diagnosing SG combine syntax errors
+
+If combined-js throws on parse, ALL combined scripts die — not just ours. Use Node to validate:
+
+```bash
+node -e "try { new Function(require('fs').readFileSync('/tmp/sg-combined.js','utf8')); console.log('OK'); } catch(e) { console.log('ERROR:', e.message); }"
+# Common error: "Identifier 'Zn' has already been declared" — SG's per-file minifier
+# produces colliding short names across files. Not our bug to fix, but visible
+# blast radius: the entire site's JS may be broken until partner disables combine.
+```
+
+If the partner reports widespread JS breakage, recommend they toggle **SG Optimizer → Frontend → JavaScript → "Combine JavaScript Files"** OFF. After v4.7.10+ install + SG cache purge, our player works whether combine is on or off.
+
+### Detection in the plugin
+
+`is_siteground_optimizer_active()` ([core/instaread-core.php:1244](core/instaread-core.php#L1244)) detects SG via (in order):
+1. `function_exists('sg_cachepress_purge_cache')` — canonical SG helper
+2. `class_exists('SiteGround_Optimizer\Loader\Loader')` — main class
+3. `is_plugin_active('sg-cachepress/sg-cachepress.php')` — plugin slug
+4. Option `siteground_optimizer_combine_javascript === '1'`
+
+When SG is detected, the bundle is enqueued normally (with proper exclusions in place) AND a dynamic-load IIFE is emitted as a safety net on wp_footer. The IIFE self-skips if a `<script src="player.instaread.co/...">` is already in the DOM.
 
 ## Related references
 - `docs/precise-placement-debugging.md` — selector/placement decision tree + diagnostics

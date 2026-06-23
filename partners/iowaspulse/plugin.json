@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.5</h4><ul><li>Enable footer JS fallback for Foxiz theme</li><li>Clean up exclude_slugs</li><li>Pick up core fix: emit bundle script in footer fallback</li></ul>"
+    "changelog": "<h4>4.7.5</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
   }
 }

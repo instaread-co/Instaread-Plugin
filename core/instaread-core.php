@@ -1242,11 +1242,18 @@ class InstareadPlayer {
      * Filter: instaread_enqueue_remote_player_script — return false to disable; receives settings and partner_config.
      */
     private function is_siteground_optimizer_active() {
-        // Detect SG Optimizer plugin via its main class or its option presence.
-        if (defined('SG_OPTIMIZER_VERSION')) return true;
+        // The SG Optimizer plugin's directory slug is sg-cachepress.
+        // Detect via the helper function it always exposes (works across all versions),
+        // its namespaced classes, or the combine-JS option being on.
+        if (function_exists('sg_cachepress_purge_cache')) return true;
+        if (function_exists('\\SiteGround_Optimizer\\Supercacher\\Supercacher::purge_cache')) return true;
         if (class_exists('\\SiteGround_Optimizer\\Loader\\Loader')) return true;
         if (class_exists('\\SiteGround_Optimizer\\Helper\\Helper')) return true;
-        // Fallback: option key set when SG Optimizer activates JS combine.
+        if (class_exists('\\SiteGround_Optimizer\\Supercacher\\Supercacher')) return true;
+        if (defined('SG_OPTIMIZER_VERSION')) return true;
+        // Plugin slug check via WP's plugin functions if loaded.
+        if (function_exists('is_plugin_active') && is_plugin_active('sg-cachepress/sg-cachepress.php')) return true;
+        // Last-ditch: combine-JS option key set to truthy.
         $combine = get_option('siteground_optimizer_combine_javascript');
         return $combine === '1' || $combine === 1 || $combine === true;
     }
@@ -1265,24 +1272,44 @@ class InstareadPlayer {
             return;
         }
 
-        // SiteGround Optimizer escape hatch: SG hooks wp_print_footer_scripts at high
-        // priority and pulls scripts straight out of wp_scripts()->queue BEFORE WP
-        // renders them — script_loader_tag never fires, exclusion lists are ignored
-        // for our cross-origin URL, and our bundle ends up inlined inside
-        // siteground-optimizer-combined-js-*.js (going stale on every player.instaread.co
-        // update). When SG Optimizer is active, bypass wp_enqueue_script entirely and
-        // emit a raw <script> tag with data-no-combine on wp_footer. SG's HTML processor
-        // honors that attribute on raw tags.
+        // SiteGround Optimizer escape hatch.
+        //
+        // SG runs an HTML output-buffer rewriter that scans the rendered page for
+        // <script src="..."> tags and rewrites/combines them — REGARDLESS of whether
+        // the tag was queued via wp_enqueue_script, echoed raw on wp_footer, or
+        // carries data-no-combine attributes. Verified across v4.7.6 (added
+        // data-no-combine on raw <script>), v4.7.7 (script_loader_tag filter), and
+        // v4.7.8 (raw <script> echo on wp_footer bypassing wp_enqueue_script) on
+        // iowaspulse 2026-06-23: all three landed the same way — bundle code inlined
+        // into siteground-optimizer-combined-js-*.js, no <script src="player.instaread.co">
+        // in the rendered HTML.
+        //
+        // The only HTML pattern SG's URL-scanner cannot see is a <script src="…"> that
+        // doesn't exist in the source HTML. So inject the publication bundle via an
+        // inline IIFE that creates the <script> element at runtime via
+        // document.createElement('script'). SG processes static <script src=""> tags;
+        // dynamically-created ones run after SG's rewriter is done.
         if ($this->is_siteground_optimizer_active()) {
             add_action('wp_footer', function () {
                 if (!empty($this->partner_config['isPlaylist'])) return;
-                if ($this->should_use_player_loader()) {
-                    echo $this->get_inline_playerv3_script_tag();
-                } else {
-                    echo $this->get_inline_instaread_player_script_tag($this->get_resolved_publication());
-                }
+                $bundle_url = $this->should_use_player_loader()
+                    ? (!empty($this->partner_config['player_loader_url'])
+                        ? $this->partner_config['player_loader_url']
+                        : 'https://player.instaread.co/js/instaread.playerv3.js')
+                    : sprintf(
+                        'https://player.instaread.co/js/instaread.%s.js',
+                        rawurlencode($this->get_resolved_publication())
+                    );
+                printf(
+                    '<script data-cfasync="false" data-no-optimize="1" data-no-combine="1" data-nitro-exclude>(function(){' .
+                    'if(window.__instaread_bundle_loaded)return;window.__instaread_bundle_loaded=true;' .
+                    'var s=document.createElement("script");s.defer=true;s.src=%s;' .
+                    '(document.head||document.documentElement).appendChild(s);' .
+                    '})();</script>',
+                    wp_json_encode($bundle_url)
+                );
             }, 5);
-            $this->log('SG Optimizer detected: emitting raw bundle <script> on wp_footer (bypassing wp_enqueue_script).');
+            $this->log('SG Optimizer detected: emitting dynamic-load IIFE (SG HTML rewriter cannot see runtime-created <script>).');
             return;
         }
 

@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.8</h4><ul><li>SiteGround Optimizer escape hatch: when SG is active, bypass wp_enqueue_script and emit raw bundle script on wp_footer so SG cannot combine it into siteground-optimizer-combined-js-*.js</li></ul>"
+    "changelog": "<h4>4.7.8</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
   }
 }

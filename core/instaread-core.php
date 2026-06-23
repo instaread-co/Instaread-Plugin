@@ -1159,17 +1159,27 @@ class InstareadPlayer {
      * Inline publisher script tag when not using site-wide wp_enqueue_script (legacy / default).
      */
     private function get_inline_instaread_player_script_tag($publication) {
-        // data-nitro-exclude: NitroPack does NOT honor data-no-optimize/minify
-        // (those are WP-Rocket/Autoptimize conventions). Without this attribute
-        // NitroPack's HTML post-processor proxies our script to its own CDN
-        // (cdn-*.nitrocdn.com/.../nitro-min-instaread.<pub>.js), which delays
-        // picking up new player bundle versions and can serve a stale build.
+        // Per-optimizer opt-out attributes:
+        //   data-cfasync="false"  → Cloudflare Rocket Loader
+        //   data-no-optimize="1"  → WP Rocket / Autoptimize
+        //   data-no-defer="1"     → WP Rocket
+        //   data-no-minify="1"    → WP Rocket
+        //   data-nitro-exclude    → NitroPack (it does NOT honor data-no-optimize/minify;
+        //                          without this attribute NitroPack's HTML post-processor
+        //                          proxies the script to cdn-*.nitrocdn.com/.../nitro-min-…)
+        //   data-no-combine="1"   → SiteGround Optimizer. SG's combine step on raw <script>
+        //                          tags (i.e. not via wp_enqueue_script) ignores the handle
+        //                          exclusion list; observed on iowaspulse 2026-06: footer
+        //                          fallback emitted instaread.{publication}.js raw, SG
+        //                          combined it into siteground-optimizer-combined-js-*.js
+        //                          and then dropped it because the URL is cross-origin.
         return sprintf(
             '<script defer
                 data-cfasync="false"
                 data-no-optimize="1"
                 data-no-defer="1"
                 data-no-minify="1"
+                data-no-combine="1"
                 data-nitro-exclude
                 src="https://player.instaread.co/js/instaread.%s.js">
             </script>',
@@ -1199,6 +1209,7 @@ class InstareadPlayer {
                 data-no-optimize="1"
                 data-no-defer="1"
                 data-no-minify="1"
+                data-no-combine="1"
                 data-nitro-exclude
                 src="%s">
             </script>',

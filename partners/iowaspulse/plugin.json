@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - iowaspulse",
-  "version": "4.7.9",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.7.9/iowaspulse-v4.7.9.zip",
+  "version": "4.7.10",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/iowaspulse-v4.7.10/iowaspulse-v4.7.10.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.9</h4><ul><li>Partner-specific build for iowaspulse</li></ul>"
+    "changelog": "<h4>4.7.10</h4><ul><li>Use the REAL SiteGround Optimizer filter names (reverse-engineered from sg-cachepress source): sgo_javascript_combine_exclude / sgo_javascript_combine_excluded_external_paths / sgo_javascript_combine_excluded_inline_content. Prior versions pushed to filters that don't exist.</li></ul>"
   }
 }

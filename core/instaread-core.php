@@ -219,38 +219,41 @@ class InstareadPlayer {
         $this->add_array_exclusion('litespeed_optm_js_defer_exc', $pattern);
 
         // --- SiteGround Optimizer ---
-        // CRITICAL: SiteGround matches these exclusion lists against the script's
-        // registered HANDLE, not its URL. Pushing the 'instaread.co' URL fragment alone
-        // never matches handle 'instaread-remote-player', so SG's "Combine JavaScript"
-        // merged our enqueued tag into siteground-optimizer-combined-js-*.js and then
-        // DROPPED it (it cannot inline a cross-origin player.instaread.co file). Result
-        // observed on iowaspulse 2026-06: slot present but instaread.{publication}.js gone,
-        // while non-SG partners (oann, dailysignal, singletrackworld) were unaffected.
-        // Fix: exclude by HANDLE. Keep the URL pattern too — harmless for any SG version
-        // that does match on URL.
+        // Reverse-engineered from sg-cachepress/trunk/core/Combinator/Js_Combinator.php
+        // (rev 3582924, 2026-06): the actual filter names SG uses are different from
+        // what we had been pushing to. v4.7.6 through v4.7.9 all failed on iowaspulse
+        // because our exclusion was registered against `sgo_javascript_combine_excluded`
+        // (with trailing 'd') — a filter that LITERALLY DOES NOT EXIST in SG's code.
+        // The real filter names are:
+        //   sgo_javascript_combine_exclude              → array of HANDLES (no 'd')
+        //   sgo_javascript_combine_excluded_external_paths → array of external URL fragments
+        //   sgo_javascript_combine_excluded_internal_paths → array of internal URL fragments
+        //   sgo_javascript_combine_exclude_ids          → array of script ids
         $sg_handles = ['instaread-remote-player', 'instaread-player-loader', 'instaread-partner-js'];
-        foreach (array_merge($sg_handles, [$pattern]) as $sg_exclusion) {
-            $this->add_array_exclusion('sgo_javascript_combine_excluded', $sg_exclusion);
-            $this->add_array_exclusion('sgo_js_minify_excluded', $sg_exclusion);
-            $this->add_array_exclusion('sgo_js_async_excluded', $sg_exclusion);
+
+        // Exclude by registered handle (SG's primary path).
+        foreach ($sg_handles as $handle) {
+            $this->add_array_exclusion('sgo_javascript_combine_exclude', $handle);
+            $this->add_array_exclusion('sgo_javascript_combine_exclude_ids', $handle . '-js');
         }
 
-        // Belt-and-braces: even when SG's option-based exclusion is honored, its
-        // Combine_Js still occasionally combines instaread.{publication}.js into
-        // siteground-optimizer-combined-js-*.js — observed on iowaspulse v4.7.6
-        // 2026-06-23, where the bundle code was inlined into SG's combined file
-        // (going stale on next bundle update) and `<script src="player.instaread.co/...">`
-        // disappeared from the rendered HTML. Hook script_loader_tag to inject
-        // data-no-combine + data-no-optimize directly onto OUR enqueued <script>
-        // tag — SG's HTML processor honors these attributes on emitted tags.
-        add_filter('script_loader_tag', function ($tag, $handle) use ($sg_handles) {
-            if (!in_array($handle, $sg_handles, true)) return $tag;
-            // Add data-no-combine / data-no-optimize if not already present.
-            if (strpos($tag, 'data-no-combine') === false) {
-                $tag = str_replace('<script ', '<script data-no-combine="1" data-no-optimize="1" ', $tag);
-            }
-            return $tag;
-        }, 10, 2);
+        // Exclude by external URL fragment. SG checks src against this list for
+        // cross-origin scripts — exactly what player.instaread.co/js/instaread.*.js is.
+        $this->add_array_exclusion('sgo_javascript_combine_excluded_external_paths', 'player.instaread.co');
+        $this->add_array_exclusion('sgo_javascript_combine_excluded_external_paths', 'instaread.co/js/');
+
+        // Exclude inline scripts that contain our markers from combine (e.g. footer-fallback
+        // <script> blocks and the JS-mover snippets emitted by inject_with_safe_string_manipulation).
+        // Combining those into the combined file breaks `document.currentScript.previousElementSibling`
+        // semantics: that DOM reference only makes sense in the script's original position.
+        foreach (['instaread-player-slot', 'instaread-player', 'instaread.co'] as $marker) {
+            $this->add_array_exclusion('sgo_javascript_combine_excluded_inline_content', $marker);
+        }
+
+        // Skip from JS async/defer too — same handles.
+        foreach ($sg_handles as $handle) {
+            $this->add_array_exclusion('sgo_javascript_async_exclude', $handle);
+        }
 
         // --- Hummingbird (WPMU Dev) ---
         add_filter('wphb_minify_resource', function ($minify, $handle) {
@@ -1272,23 +1275,17 @@ class InstareadPlayer {
             return;
         }
 
-        // SiteGround Optimizer escape hatch.
+        // SiteGround Optimizer belt-and-braces safety net.
         //
-        // SG runs an HTML output-buffer rewriter that scans the rendered page for
-        // <script src="..."> tags and rewrites/combines them — REGARDLESS of whether
-        // the tag was queued via wp_enqueue_script, echoed raw on wp_footer, or
-        // carries data-no-combine attributes. Verified across v4.7.6 (added
-        // data-no-combine on raw <script>), v4.7.7 (script_loader_tag filter), and
-        // v4.7.8 (raw <script> echo on wp_footer bypassing wp_enqueue_script) on
-        // iowaspulse 2026-06-23: all three landed the same way — bundle code inlined
-        // into siteground-optimizer-combined-js-*.js, no <script src="player.instaread.co">
-        // in the rendered HTML.
-        //
-        // The only HTML pattern SG's URL-scanner cannot see is a <script src="…"> that
-        // doesn't exist in the source HTML. So inject the publication bundle via an
-        // inline IIFE that creates the <script> element at runtime via
-        // document.createElement('script'). SG processes static <script src=""> tags;
-        // dynamically-created ones run after SG's rewriter is done.
+        // The exclusion filters in init_optimization_exclusions() (using the real
+        // SG filter names from sg-cachepress/trunk/core/Combinator/Js_Combinator.php)
+        // SHOULD keep our bundle out of siteground-optimizer-combined-js-*.js. As a
+        // safety net for older SG versions or future regressions, also emit a
+        // dynamic-load IIFE on wp_footer when SG is detected. The IIFE creates the
+        // <script> element at runtime via document.createElement('script') — SG's
+        // output-buffer rewriter scans static <script src=""> tags, not dynamically-
+        // created ones, so it can't combine this away. The IIFE self-guards against
+        // double-load with __instaread_bundle_loaded.
         if ($this->is_siteground_optimizer_active()) {
             add_action('wp_footer', function () {
                 if (!empty($this->partner_config['isPlaylist'])) return;
@@ -1302,15 +1299,19 @@ class InstareadPlayer {
                     );
                 printf(
                     '<script data-cfasync="false" data-no-optimize="1" data-no-combine="1" data-nitro-exclude>(function(){' .
-                    'if(window.__instaread_bundle_loaded)return;window.__instaread_bundle_loaded=true;' .
+                    'if(window.__instaread_bundle_loaded)return;' .
+                    // Skip if WP-enqueued tag already loaded the bundle (regular path worked).
+                    'if(document.querySelector(\'script[src*="player.instaread.co/js/instaread."]\'))return;' .
+                    'window.__instaread_bundle_loaded=true;' .
                     'var s=document.createElement("script");s.defer=true;s.src=%s;' .
                     '(document.head||document.documentElement).appendChild(s);' .
                     '})();</script>',
                     wp_json_encode($bundle_url)
                 );
             }, 5);
-            $this->log('SG Optimizer detected: emitting dynamic-load IIFE (SG HTML rewriter cannot see runtime-created <script>).');
-            return;
+            $this->log('SG Optimizer detected: emitted dynamic-load IIFE safety-net (will be a no-op if the WP-enqueued script tag is already in DOM).');
+            // FALL THROUGH to wp_enqueue_script — that's the primary path now that
+            // exclusions use the real SG filter names.
         }
 
         // Config guard: when use_player_loader is enabled, enqueue playerv3.js sitewide instead

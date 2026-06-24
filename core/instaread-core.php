@@ -1596,6 +1596,14 @@ class InstareadPlayer {
         }
 
         $target = $this->partner_config['footer_js_fallback_selector'] ?? '.entry-content';
+        // Honor insert_position from the first injection rule so footer fallback
+        // can land the slot above/below a specific element (e.g. ".td-post-content p"
+        // + before_element = slot directly above the first paragraph, not at the
+        // top of the article body wrapper). Defaults to "prepend" for compatibility.
+        $insert_position = 'prepend';
+        if (!empty($this->partner_config['injection_rules'][0]['insert_position'])) {
+            $insert_position = $this->partner_config['injection_rules'][0]['insert_position'];
+        }
         $publication = $this->get_resolved_publication();
         $player_type = $this->partner_config['playerType'] ?? '';
         $color       = $this->partner_config['color'] ?? '#59476b';
@@ -1611,9 +1619,20 @@ class InstareadPlayer {
         );
 
         printf(
-            '<script data-cfasync="false" data-no-optimize="1">(function(){var t=document.querySelector(%s);if(t&&!t.querySelector(".instaread-player-slot")){var d=document.createElement("div");d.innerHTML=%s;t.insertBefore(d.firstChild,t.firstChild);}})();</script>',
+            '<script data-cfasync="false" data-no-optimize="1">(function(){' .
+            'var t=document.querySelector(%s);' .
+            'if(!t||document.querySelector(".instaread-player-slot"))return;' .
+            'var d=document.createElement("div");d.innerHTML=%s;' .
+            'var s=d.firstChild;' .
+            'var p=%s;' .
+            'if(p==="before_element"){t.parentNode.insertBefore(s,t);}' .
+            'else if(p==="after_element"){t.parentNode.insertBefore(s,t.nextSibling);}' .
+            'else if(p==="append"){t.appendChild(s);}' .
+            'else{t.insertBefore(s,t.firstChild);}' . // prepend / inside_first_child (default)
+            '})();</script>',
             wp_json_encode($target),
-            wp_json_encode($slot_html)
+            wp_json_encode($slot_html),
+            wp_json_encode($insert_position)
         );
 
         // Some themes (e.g. tagDiv Newspaper with custom tdb-template builder) skip the

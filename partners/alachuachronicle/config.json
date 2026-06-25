@@ -1,0 +1,36 @@
+{
+  "partner_id": "alachuachronicle",
+  "domain": "alachuachronicle.cc",
+  "publication": "alachuachronicle",
+  "injection_context": "post",
+  "injection_strategy": "first",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true,
+  "enqueue_remote_player_script_sitewide": true,
+  "enable_footer_js_fallback": true,
+  "footer_js_fallback_selector": ".post-single-content",
+  "injection_rules": [
+    {
+      "target_selector": ".post-single-content .wp-block-image",
+      "insert_position": "after_element",
+      "exclude_slugs": [
+        "/",
+        "/privacy-policy/",
+        "/terms-of-service/",
+        "/terms-of-use/",
+        "/about/",
+        "/about-us/",
+        "/contact/",
+        "/contact-us/",
+        "/advertise/",
+        "/advertise-with-us/",
+        "/authors/",
+        "/shop/",
+        "/cart/",
+        "/checkout/",
+        "/my-account/"
+      ]
+    }
+  ],
+  "version": "4.7.0"
+}

@@ -256,8 +256,40 @@ class InstareadPlayer {
         }
 
         // --- Hummingbird (WPMU Dev) ---
-        add_filter('wphb_minify_resource', function ($minify, $handle) {
-            return strpos((string) $handle, 'instaread') !== false ? false : $minify;
+        // Reverse-engineered from hummingbird-performance/trunk/core/modules/
+        // class-minify.php (rev 3591891). Hummingbird has SEPARATE filters per
+        // behavior (combine, minify, defer, async, block) and prior code only
+        // blocked minify — `wphb_combine_resource` was still wide open, so our
+        // bundle was being inlined into hummingbird-assets/<hash>.js. Observed
+        // on asamnews.com 2026-06: meta tag + <instaread-player> present, slot
+        // injected, but instaread.asamnews.js missing from network — it was
+        // inlined into the combined file (full InstareadPlayer class found at
+        // offset ~9k in the 31KB combined output).
+        //
+        // Filter signatures (return false to exclude):
+        //   wphb_combine_resource(value, handle, type) — controls combine
+        //   wphb_minify_resource(value, handle, type)  — controls minify
+        //   wphb_defer_resource(value, handle, type)   — controls defer
+        //   wphb_async_resource(value, handle, type)   — controls async
+        //   wphb_block_resource(value, handle, type)   — controls block
+        // Plus an array-style handle exclusion:
+        //   wphb_dont_combine_handles(bool, handle, type) — return true to skip combine
+        $hb_filters = [
+            'wphb_combine_resource',
+            'wphb_minify_resource',
+            'wphb_defer_resource',
+            'wphb_async_resource',
+            'wphb_block_resource',
+        ];
+        foreach ($hb_filters as $filter) {
+            add_filter($filter, function ($value, $handle) {
+                return strpos((string) $handle, 'instaread') !== false ? false : $value;
+            }, 10, 2);
+        }
+        // Belt-and-braces: also tell Hummingbird via the handle-exclusion filter.
+        add_filter('wphb_dont_combine_handles', function ($skip, $handle) {
+            if (strpos((string) $handle, 'instaread') !== false) return true;
+            return $skip;
         }, 10, 2);
 
         // --- NitroPack ---

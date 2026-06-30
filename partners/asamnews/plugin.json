@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - asamnews",
-  "version": "4.7.2",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/asamnews-v4.7.2/asamnews-v4.7.2.zip",
+  "version": "4.7.11",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/asamnews-v4.7.11/asamnews-v4.7.11.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.2</h4><ul><li>Partner-specific build for asamnews</li></ul>"
+    "changelog": "<h4>4.7.11</h4><ul><li>Pick up Hummingbird Optimizer combine-exclusion fix: bundle now loads from player.instaread.co directly instead of being inlined into hummingbird-assets/*.js</li></ul>"
   }
 }

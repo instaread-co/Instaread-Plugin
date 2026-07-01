@@ -1,0 +1,35 @@
+{
+  "partner_id": "thenation",
+  "domain": "thenation.com",
+  "publication": "thenation",
+  "injection_context": "post",
+  "injection_strategy": "first",
+  "force_disable_logs": true,
+  "clear_page_cache_on_upgrade": true,
+  "enable_footer_js_fallback": true,
+  "footer_js_fallback_selector": "p.is-style-dropcap",
+  "injection_rules": [
+    {
+      "target_selector": "p.is-style-dropcap",
+      "insert_position": "before_element",
+      "exclude_slugs": [
+        "/",
+        "/privacy-policy/",
+        "/terms-of-service/",
+        "/terms-of-use/",
+        "/about/",
+        "/about-us/",
+        "/contact/",
+        "/contact-us/",
+        "/advertise/",
+        "/advertise-with-us/",
+        "/authors/",
+        "/shop/",
+        "/cart/",
+        "/checkout/",
+        "/my-account/"
+      ]
+    }
+  ],
+  "version": "4.7.11"
+}

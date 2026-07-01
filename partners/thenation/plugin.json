@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.11</h4><ul><li>Inject the player right before the first article paragraph (below the hero image) so both hero layouts are covered: <code>article-title__image</code> (hero rendered outside the_content) and <code>wp-block-image</code> (hero inside the_content). Fixes articles where no player was injected because the old <code>.entry-content</code> selector never matched.</li></ul>"
+    "changelog": "<h4>4.7.11</h4><ul><li>Partner-specific build for thenation</li></ul>"
   }
 }

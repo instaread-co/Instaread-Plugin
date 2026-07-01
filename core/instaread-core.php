@@ -634,6 +634,13 @@ class InstareadPlayer {
         $raw_suppress  = $wp_raw['suppress_urls'] ?? '';
         $suppress_urls = array_values(array_filter(array_map('trim', explode("\n", $raw_suppress))));
 
+        // manual_include_urls — admin-entered list of specific article URLs that
+        // should ALWAYS get the player, even when the inject_from_install_date
+        // gate would otherwise skip them (i.e. older posts published before the
+        // plugin was installed). Same string-per-line format as suppress_urls.
+        $raw_include        = $wp_raw['manual_include_urls'] ?? '';
+        $manual_include_urls = array_values(array_filter(array_map('trim', explode("\n", $raw_include))));
+
         if ($this->partner_config) {
             $this->log('Loaded settings from partner config');
             return [
@@ -644,6 +651,7 @@ class InstareadPlayer {
                 'injection_context'   => $this->partner_config['injection_context'] ?? 'singular',
                 'use_player_loader'   => !empty($this->partner_config['use_player_loader']),
                 'suppress_urls'       => $suppress_urls,
+                'manual_include_urls' => $manual_include_urls,
             ];
         }
 
@@ -659,6 +667,7 @@ class InstareadPlayer {
             'injection_context'   => $wp['injection_context'] ?? 'singular',
             'use_player_loader'   => !empty($wp['use_player_loader']),
             'suppress_urls'       => $suppress_urls,
+            'manual_include_urls' => $manual_include_urls,
         ];
     }
 
@@ -675,6 +684,14 @@ class InstareadPlayer {
      */
     public function on_plugin_activated() {
         set_transient('instaread_send_activation_telemetry', 1, HOUR_IN_SECONDS);
+
+        // Record the activation timestamp ONCE (add_option is a no-op if it
+        // already exists) so the "inject_from_install_date" gate can compare a
+        // post's publish date against when this partner first installed the
+        // plugin. Stored in GMT to line up with WP's post_date_gmt column.
+        // Never overwritten on re-activation / upgrade, so the cutoff stays
+        // fixed at the true first install.
+        add_option('instaread_install_date_gmt', current_time('mysql', true));
     }
 
     /**
@@ -1040,6 +1057,23 @@ class InstareadPlayer {
                 'description' => 'Please paste the complete URL for suppressing the player. For adding multiple URLs, please paste each URL on another line.',
             ]
         );
+
+        // Manual-include field only appears for partners who opt in via config.json.
+        // Lets them turn the player on for specific OLDER articles that the
+        // install-date gate would otherwise skip.
+        if (!empty($this->partner_config['manual_include_enabled'])) {
+            add_settings_field(
+                'instaread_manual_include_urls',
+                'Enable Player on Older Article URLs',
+                [$this, 'field_textarea'],
+                'instaread-settings',
+                'instaread_main',
+                [
+                    'key'         => 'manual_include_urls',
+                    'description' => 'Paste the complete URL of an older article to render the player on the article (one URL per line). Use this for articles published before the plugin was installed.',
+                ]
+            );
+        }
         $this->log('Registered WP admin settings');
     }
 
@@ -1130,6 +1164,39 @@ class InstareadPlayer {
             }
         }
 
+        // Manual include allowlist (opt-in per partner config: "manual_include_enabled").
+        // Admin pastes specific article URLs that must ALWAYS get the player — this is
+        // how a partner turns the player on for OLD posts that the install-date gate below
+        // would otherwise skip. Because it's an explicit "yes, inject here", it wins over
+        // the date gate. It still respects the suppress checks above (a URL can't be both
+        // suppressed and force-included; suppress is evaluated first and returns early).
+        // Default OFF: partners without the config key are completely unaffected.
+        if (!empty($this->partner_config['manual_include_enabled'])
+            && !empty($this->settings['manual_include_urls'])
+            && is_array($this->settings['manual_include_urls'])) {
+            $request_path = strtok(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', '?');
+            $request_path = '/' . trim($request_path, '/');
+            foreach ($this->settings['manual_include_urls'] as $included) {
+                if (strpos($included, '://') !== false) {
+                    $parsed   = parse_url($included);
+                    $included = $parsed['path'] ?? $included;
+                }
+                $normalized = '/' . trim($included, '/');
+                if ($request_path === $normalized) {
+                    return true;
+                }
+            }
+        }
+
+        // Install-date gate (opt-in per partner config: "inject_from_install_date").
+        // Checked before the context switch below so the existing context logic stays
+        // untouched. When enabled, posts published before this partner installed the
+        // plugin are skipped here (older posts are reached via the manual_include_urls
+        // allowlist above, which returns early). Default OFF → no effect for other partners.
+        if (!$this->passes_install_date_gate()) {
+            return false;
+        }
+
         $ctx = $this->settings['injection_context'];
 
         // Array form: ["post", "custom_post_type", ...]
@@ -1152,6 +1219,44 @@ class InstareadPlayer {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Install-date gate (opt-in per partner config: "inject_from_install_date").
+     *
+     * When enabled, the player is only auto-injected on posts published ON OR AFTER
+     * the day this partner first activated the plugin — so a fresh install starts
+     * adding audio to NEW articles going forward, and does not retroactively light up
+     * the entire back catalogue. Older posts are reached via the manual_include_urls
+     * allowlist instead (checked before this gate in should_inject()).
+     *
+     * Default OFF: if the config key is absent this returns true, so existing partners
+     * keep injecting on every matching post exactly as before — zero behavior change.
+     *
+     * The cutoff comes from the 'instaread_install_date_gmt' option written in
+     * on_plugin_activated(). If it is somehow missing (e.g. the option was never
+     * written because the partner upgraded into this version rather than doing a clean
+     * activation), we lazily backfill it to "now" so the gate has a stable reference
+     * from this point forward rather than failing open or closed unpredictably.
+     */
+    private function passes_install_date_gate() {
+        if (empty($this->partner_config['inject_from_install_date'])) {
+            return true;
+        }
+
+        $install_date = get_option('instaread_install_date_gmt');
+        if (empty($install_date)) {
+            $install_date = current_time('mysql', true);
+            add_option('instaread_install_date_gmt', $install_date);
+        }
+
+        global $post;
+        if (empty($post) || empty($post->post_date_gmt) || $post->post_date_gmt === '0000-00-00 00:00:00') {
+            // No reliable publish date — don't block injection on a data gap.
+            return true;
+        }
+
+        return strtotime($post->post_date_gmt) >= strtotime($install_date);
     }
 
     /**
@@ -2065,8 +2170,9 @@ class InstareadPlayer {
 
     public function sanitize_settings($in) {
         return [
-            'publication'   => sanitize_text_field($in['publication'] ?? 'default'),
-            'suppress_urls' => sanitize_textarea_field($in['suppress_urls'] ?? ''),
+            'publication'         => sanitize_text_field($in['publication'] ?? 'default'),
+            'suppress_urls'       => sanitize_textarea_field($in['suppress_urls'] ?? ''),
+            'manual_include_urls' => sanitize_textarea_field($in['manual_include_urls'] ?? ''),
         ];
     }
 

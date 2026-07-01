@@ -7,6 +7,8 @@
   "force_disable_logs": true,
   "clear_page_cache_on_upgrade": true,
   "enqueue_remote_player_script_sitewide": true,
+  "inject_from_install_date": true,
+  "manual_include_enabled": true,
   "injection_rules": [
     {
       "target_selector": ".post-content",
@@ -27,5 +29,5 @@
       ]
     }
   ],
-  "version": "4.7.3"
+  "version": "4.7.4"
 }

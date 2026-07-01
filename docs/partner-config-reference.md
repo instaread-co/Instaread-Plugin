@@ -68,6 +68,58 @@ Override per partner when:
 
 ---
 
+## Time-scoped injection (new articles only + manual back-catalogue)
+
+Two **opt-in, per-partner** keys let a partner start the player on **articles published from the install date forward**, while still turning it on for **specific older articles** by URL. Both default OFF — a partner without these keys behaves exactly as before (player on every matching post). Added for **aconsciousrethink** (July 2026).
+
+### `inject_from_install_date` (boolean, default: `false`)
+When `true`, the player is only auto-injected on posts whose **publish date is on or after** the day this partner first activated the plugin. Older posts are skipped by the auto path (reach them via `manual_include_enabled` below).
+
+**How the cutoff is stored/compared:**
+- On activation, `on_plugin_activated()` writes `add_option('instaread_install_date_gmt', current_time('mysql', true))` — recorded **once** (never overwritten on re-activation/upgrade), in **GMT**.
+- The gate (`passes_install_date_gate()` in `core/instaread-core.php`) compares `$post->post_date_gmt` (from the WordPress DB `wp_posts` table — **not** scraped from the DOM) against that option.
+- Both values are GMT, so the comparison is timezone-safe: `strtotime($post->post_date_gmt) >= strtotime($install_date)`.
+
+**Fail-open safeguards (never block injection on a data gap):**
+- Config key absent → gate returns `true` (no effect for other partners).
+- `instaread_install_date_gmt` missing (e.g. partner **upgraded into** this version instead of a clean activation, so the activation hook never fired) → lazily backfilled to "now" so the cutoff is stable from that point forward.
+- Post has no reliable `post_date_gmt` → returns `true` (inject rather than silently drop).
+
+### `manual_include_enabled` (boolean, default: `false`)
+When `true`:
+1. A **WP admin field** appears at *Settings → Instaread Player* titled **"Enable Player on Older Article URLs"** (a textarea, one URL per line). Registered conditionally in `register_settings()`; hidden for partners who don't opt in.
+2. Any request whose path matches one of those URLs gets the player **regardless of the install-date gate**.
+
+Admin input is stored in the `instaread_settings` option under `manual_include_urls` (string), split into a list by `get_settings()`, and preserved by `sanitize_settings()` (must stay listed there or a Save would wipe it). URLs are matched on **path only** — full URL or bare path both work; `http/https`, `www`, and trailing slashes are normalized away (same logic as `suppress_urls`, just inverted).
+
+### Priority order inside `should_inject()`
+The gates are evaluated top-to-bottom; the **first** decision wins:
+
+| Order | Check | Result if matched |
+|---|---|---|
+| 1 | `suppress_body_classes` / `suppress_urls` | **Block** (suppress always wins, even over manual-include) |
+| 2 | `manual_include_urls` | **Inject** — overrides the date gate (this is how old articles are enabled) |
+| 3 | `inject_from_install_date` gate | Skip posts older than install date |
+| 4 | `injection_context` (post/page/…) | Existing context logic — unchanged |
+
+So: **suppress > manual-include > install-date > context.** A URL listed in *both* suppress and manual-include stays suppressed (safety: "off" beats "on").
+
+### Example (aconsciousrethink)
+```json
+{
+  "injection_context": "post",
+  "inject_from_install_date": true,
+  "manual_include_enabled": true
+}
+```
+Result: articles published after install auto-get the player; the partner pastes URLs of pre-install articles into the admin field to enable those too.
+
+### When changing this later
+- The install-date is **frozen at first activation** — deactivating/reactivating does **not** reset it (`add_option` is a no-op if the option exists). To re-baseline intentionally, delete the `instaread_install_date_gmt` option.
+- Injection decisions run **server-side in PHP** before the DOM exists — do not confuse this date with the partner JS `publishedDateSelector`, which scrapes the DOM for **audio metadata** and has nothing to do with whether the player is injected.
+
+---
+
 ## Footer JS fallback (last-resort injection)
 
 For sites where the `the_content` filter is bypassed entirely by the theme (some block themes, custom page builders, headless setups), the player can be injected client-side at `wp_footer`.

@@ -10,6 +10,8 @@
   "inject_from_install_date": true,
   "install_date_override": "2026-07-02 08:27:39",
   "manual_include_enabled": true,
+  "enable_footer_js_fallback": true,
+  "footer_js_fallback_selector": ".post-content",
   "injection_rules": [
     {
       "target_selector": ".post-content",
@@ -30,5 +32,5 @@
       ]
     }
   ],
-  "version": "4.7.5"
+  "version": "4.8.0"
 }

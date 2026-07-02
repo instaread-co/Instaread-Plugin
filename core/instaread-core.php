@@ -773,6 +773,15 @@ class InstareadPlayer {
         $old_version = get_option(self::VERSION_OPTION_KEY, '0');
         update_option(self::VERSION_OPTION_KEY, $this->plugin_version);
 
+        // Anchor the install date here as well as in on_plugin_activated().
+        // This runs on the first wp-admin request after activation — an admin
+        // context that fires reliably and BEFORE any front-end article view, so
+        // the inject_from_install_date cutoff is set to the true install time
+        // rather than being lazily backfilled to "now" on a front-end render
+        // (which previously blocked the very first new article). add_option is a
+        // no-op if the activation hook already wrote it.
+        add_option('instaread_install_date_gmt', current_time('mysql', true));
+
         $this->send_telemetry('install', $old_version, $this->plugin_version);
         $this->log('Activation telemetry sent via admin_init fallback.');
     }
@@ -1244,10 +1253,38 @@ class InstareadPlayer {
             return true;
         }
 
-        $install_date = get_option('instaread_install_date_gmt');
+        // Hard override (per partner config.json: "install_date_override", GMT
+        // "YYYY-MM-DD HH:MM:SS"). Wins over the stored option and the backfill.
+        // Used when the auto-recorded install date is wrong/missing and the true
+        // install moment is known, so the cutoff can be pinned exactly.
+        //
+        // aconsciousrethink: plugin was installed 2026-07-02 08:27:39 UTC but the
+        // option got backfilled to a later first-view time, blocking articles
+        // published after install. Pinning the real install instant makes every
+        // post published on/after 08:27:39 UTC inject as intended.
+        $override = $this->partner_config['install_date_override'] ?? '';
+        if (is_string($override) && trim($override) !== '') {
+            $install_date = trim($override);
+        } else {
+            $install_date = get_option('instaread_install_date_gmt');
+        }
+
         if (empty($install_date)) {
-            $install_date = current_time('mysql', true);
-            add_option('instaread_install_date_gmt', $install_date);
+            // The install date was never recorded (e.g. the plugin was installed
+            // via a flow that didn't fire register_activation_hook, or it was
+            // upgraded into this version rather than freshly activated).
+            //
+            // Backfill it going forward so the cutoff stabilises — but do NOT
+            // use "now" as the cutoff for THIS request. Doing so caused a bug on
+            // aconsciousrethink (2026-07-02): the option was empty, the first
+            // qualifying front-end view was a brand-new article, so the backfill
+            // set install_date ≈ that article's publish time, and the gate then
+            // compared post_date_gmt >= (≈same instant) and blocked the player.
+            //
+            // When the true install date is unknown we FAIL OPEN (inject) — never
+            // silently suppress based on a cutoff we just invented.
+            add_option('instaread_install_date_gmt', current_time('mysql', true));
+            return true;
         }
 
         global $post;

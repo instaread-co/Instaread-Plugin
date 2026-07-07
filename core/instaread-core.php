@@ -1769,7 +1769,12 @@ class InstareadPlayer {
             return;
         }
 
-        $target = $this->partner_config['footer_js_fallback_selector'] ?? '.entry-content';
+        // footer_js_fallback_selector accepts either a string OR an array of selectors.
+        // When an array is provided, the JS iterates in order and uses the first match.
+        // Useful for partners whose theme has multiple wrapper-class variants (e.g. tagDiv
+        // Newspaper older uses `.td-post-content`, newer block-builder uses `.tdb_single_content`).
+        $target_raw = $this->partner_config['footer_js_fallback_selector'] ?? '.entry-content';
+        $target_selectors = is_array($target_raw) ? array_values($target_raw) : [$target_raw];
         // Honor insert_position from the first injection rule so footer fallback
         // can land the slot above/below a specific element (e.g. ".td-post-content p"
         // + before_element = slot directly above the first paragraph, not at the
@@ -1794,8 +1799,10 @@ class InstareadPlayer {
 
         printf(
             '<script data-cfasync="false" data-no-optimize="1">(function(){' .
-            'var t=document.querySelector(%s);' .
-            'if(!t||document.querySelector(".instaread-player-slot"))return;' .
+            'if(document.querySelector(".instaread-player-slot"))return;' .
+            'var sels=%s;var t=null;' .
+            'for(var i=0;i<sels.length&&!t;i++){t=document.querySelector(sels[i]);}' .
+            'if(!t)return;' .
             'var d=document.createElement("div");d.innerHTML=%s;' .
             'var s=d.firstChild;' .
             'var p=%s;' .
@@ -1804,7 +1811,7 @@ class InstareadPlayer {
             'else if(p==="append"){t.appendChild(s);}' .
             'else{t.insertBefore(s,t.firstChild);}' . // prepend / inside_first_child (default)
             '})();</script>',
-            wp_json_encode($target),
+            wp_json_encode($target_selectors),
             wp_json_encode($slot_html),
             wp_json_encode($insert_position)
         );

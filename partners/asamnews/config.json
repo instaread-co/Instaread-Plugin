@@ -7,6 +7,15 @@
   "force_disable_logs": true,
   "clear_page_cache_on_upgrade": true,
   "enqueue_remote_player_script_sitewide": true,
+  "enable_footer_js_fallback": true,
+  "footer_js_fallback_selector": [
+    ".td-post-content p",
+    ".tdb_single_content p",
+    ".td-post-content",
+    ".tdb_single_content",
+    ".entry-content p",
+    ".entry-content"
+  ],
   "injection_rules": [
     {
       "target_selector": ".td-post-content p",
@@ -29,5 +38,5 @@
       ]
     }
   ],
-  "version": "4.7.11"
+  "version": "4.7.12"
 }

@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - startsat60",
-  "version": "4.6.0",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/startsat60-v4.6.0/startsat60-v4.6.0.zip",
+  "version": "4.7.12",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/startsat60-v4.7.12/startsat60-v4.7.12.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.6.0</h4><ul><li>Partner-specific build for startsat60</li></ul>"
+    "changelog": "<h4>4.7.12</h4><ul><li>Catch up to fleet baseline: fixes intermittent per-article skip (v4.5.7 static-flag race), footer JS fallback with multi-selector chain, cleaned exclude_slugs, all optimizer exclusions (SG, Hummingbird, Cloudflare, WP Rocket, NitroPack)</li></ul>"
   }
 }

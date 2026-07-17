@@ -4,6 +4,8 @@
   "publication": "raidersnewswire",
   "injection_context": "post",
   "injection_strategy": "first",
+  "enable_footer_js_fallback": true,
+  "footer_js_fallback_selector": ".rbct",
   "injection_rules": [
     {
       "target_selector": ".rbct",
@@ -30,7 +32,7 @@
       ]
     }
   ],
-  "version": "4.6.0",
+  "version": "4.6.1",
   "force_disable_logs": true,
   "clear_page_cache_on_upgrade": true
 }

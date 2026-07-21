@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.12</h4><ul><li>Move player above author box (.pp-multiple-authors-boxes-wrapper) instead of above first paragraph</li><li>Catch up to fleet baseline: multi-selector footer JS fallback, all optimizer exclusions (SG/Hummingbird), fixed static-flag race, cleaned exclude_slugs, corrected domain typo</li></ul>"
+    "changelog": "<h4>4.7.12</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
   }
 }

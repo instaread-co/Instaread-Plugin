@@ -14,13 +14,13 @@
   },
   "enable_footer_js_fallback": true,
   "footer_js_fallback_selector": [
+    ".pp-multiple-authors-boxes-wrapper",
     ".td-post-content p",
-    ".entry-content p",
-    ".pp-multiple-authors-boxes-wrapper"
+    ".entry-content p"
   ],
   "injection_rules": [
     {
-      "target_selector": ".td-post-content p",
+      "target_selector": ".pp-multiple-authors-boxes-wrapper",
       "insert_position": "before_element",
       "exclude_slugs": [
         "/",
@@ -41,5 +41,5 @@
       ]
     }
   ],
-  "version": "4.7.15"
+  "version": "4.7.16"
 }

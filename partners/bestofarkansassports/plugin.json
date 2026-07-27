@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.15</h4><ul><li>CLS fix v2: drop inline min-height when slot_heights is set — inline style had higher CSS specificity than the emitted &lt;style&gt; block, so 144px was still winning and the shift persisted</li></ul>"
+    "changelog": "<h4>4.7.15</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
   }
 }

@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.14</h4><ul><li>CLS fix: opt in to slot_heights config so the plugin emits a scoped <style> block with per-viewport min-heights (236px mobile / 160px desktop) matching the partner's stylesheet — eliminates the 92px shift at HTML parse time on mobile and the 76px empty-space flash on desktop</li></ul>"
+    "changelog": "<h4>4.7.14</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
   }
 }

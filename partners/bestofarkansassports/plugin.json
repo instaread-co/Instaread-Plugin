@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.17</h4><ul><li>Switch to WordPress-standard end-of-content injection (empty selector + append). Player lands at the end of $content via the_content filter — same visual position as v4.7.16 (end of article body, above author box), but no dependency on PublishPress Authors plugin being present.</li></ul>"
+    "changelog": "<h4>4.7.17</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
   }
 }

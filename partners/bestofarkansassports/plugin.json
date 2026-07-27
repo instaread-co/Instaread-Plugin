@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - bestofarkansassports",
-  "version": "4.7.12",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bestofarkansassports-v4.7.12/bestofarkansassports-v4.7.12.zip",
+  "version": "4.7.13",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bestofarkansassports-v4.7.13/bestofarkansassports-v4.7.13.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.12</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
+    "changelog": "<h4>4.7.13</h4><ul><li>Revert player position to above first paragraph (customer request, monitoring CLS/INP). Server-side injection via the_content filter is primary; footer JS fallback only as safety net.</li></ul>"
   }
 }

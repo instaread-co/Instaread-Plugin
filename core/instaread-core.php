@@ -1788,6 +1788,18 @@ class InstareadPlayer {
         $color       = $this->partner_config['color'] ?? '#59476b';
         $slot_css    = $this->partner_config['slot_css'] ?? 'min-height:144px;';
 
+        // Emit the same per-viewport min-height <style> block that render_single
+        // uses, so footer-fallback-injected slots also skip the CLS shift when
+        // partner opts in via config. Must fire BEFORE the slot script — the
+        // <style> takes effect for the slot as soon as the slot lands in DOM.
+        $height_style = $this->build_slot_height_style_block($publication);
+        if ($height_style) {
+            echo $height_style;
+            // Drop inline min-height when the <style> block owns height (see
+            // render_single comment for the specificity story).
+            $slot_css = trim(preg_replace('/\s*min-height\s*:[^;]+;?\s*/i', '', $slot_css));
+        }
+
         // data-partner is what the optional per-partner <style> block scopes to.
         // See build_slot_height_style_block() for the CLS mitigation this enables.
         $slot_html = sprintf(
@@ -1799,14 +1811,6 @@ class InstareadPlayer {
             esc_html($player_type),
             esc_html($color)
         );
-
-        // Emit the same per-viewport min-height <style> block that render_single
-        // uses, so footer-fallback-injected slots also skip the CLS shift when
-        // partner opts in via config.
-        $height_style = $this->build_slot_height_style_block($publication);
-        if ($height_style) {
-            echo $height_style;
-        }
 
         printf(
             '<script data-cfasync="false" data-no-optimize="1">(function(){' .
@@ -2217,7 +2221,15 @@ class InstareadPlayer {
         // eliminates the layout shift caused by the default 144px inline min-height
         // being overridden later by the partner's styles.css (e.g. mobile 236px).
         // Opt-in per partner — zero-config partners keep the legacy inline style.
+        //
+        // When slot_heights IS set, drop the inline min-height from the style
+        // attribute — otherwise inline (specificity 1,0,0,0) beats the emitted
+        // <style> block (0,0,2,0) and 144px still wins, defeating the fix.
         $height_style = $this->build_slot_height_style_block($publication);
+        if ($height_style !== '') {
+            // strip any min-height from slot_css since the <style> block owns it now
+            $slot_css = trim(preg_replace('/\s*min-height\s*:[^;]+;?\s*/i', '', $slot_css));
+        }
 
         $slot = sprintf(
             '%s<div class="instaread-player-slot" data-partner="%s" data-instaread-version="%s" style="%s">

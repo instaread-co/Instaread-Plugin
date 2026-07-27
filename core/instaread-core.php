@@ -1788,14 +1788,25 @@ class InstareadPlayer {
         $color       = $this->partner_config['color'] ?? '#59476b';
         $slot_css    = $this->partner_config['slot_css'] ?? 'min-height:144px;';
 
+        // data-partner is what the optional per-partner <style> block scopes to.
+        // See build_slot_height_style_block() for the CLS mitigation this enables.
         $slot_html = sprintf(
-            '<div class="instaread-player-slot" data-instaread-version="%s" data-instaread-source="footer-js-fallback" style="%s"><instaread-player publication="%s" playertype="%s" color="%s"></instaread-player></div>',
+            '<div class="instaread-player-slot" data-partner="%s" data-instaread-version="%s" data-instaread-source="footer-js-fallback" style="%s"><instaread-player publication="%s" playertype="%s" color="%s"></instaread-player></div>',
+            esc_attr($publication),
             esc_attr($this->plugin_version),
             esc_attr($slot_css),
             esc_html($publication),
             esc_html($player_type),
             esc_html($color)
         );
+
+        // Emit the same per-viewport min-height <style> block that render_single
+        // uses, so footer-fallback-injected slots also skip the CLS shift when
+        // partner opts in via config.
+        $height_style = $this->build_slot_height_style_block($publication);
+        if ($height_style) {
+            echo $height_style;
+        }
 
         printf(
             '<script data-cfasync="false" data-no-optimize="1">(function(){' .
@@ -2157,13 +2168,63 @@ class InstareadPlayer {
         }
     }
 
+    /**
+     * Build an optional inline <style> block that declares slot min-heights per
+     * viewport. Emitted right before the slot markup so heights take effect at
+     * HTML-parse time, not when the partner's styles.css finally loads — this is
+     * what eliminates the CLS shift.
+     *
+     * Config shape (all keys optional; block is only emitted if `mobile` is set):
+     *   "slot_heights": {
+     *     "mobile":            236,   // min-height in px on mobile (required)
+     *     "desktop":           160,   // min-height in px on desktop (optional; falls back to mobile)
+     *     "mobile_max_width":  660    // max viewport width still considered mobile (default 660)
+     *   }
+     *
+     * Scoped by data-partner="<publication>" so it never leaks between partners
+     * (irrelevant on a single WP install, but tidy).
+     *
+     * Returns empty string when partner has no slot_heights config — zero regression
+     * for the existing fleet.
+     */
+    private function build_slot_height_style_block($publication) {
+        $heights = $this->partner_config['slot_heights'] ?? null;
+        if (!is_array($heights) || empty($heights['mobile'])) {
+            return '';
+        }
+        $mobile      = (int) $heights['mobile'];
+        $desktop     = (int) ($heights['desktop'] ?? $mobile);
+        $breakpoint  = (int) ($heights['mobile_max_width'] ?? 660);
+        // esc_attr protects the publication value even though the CSS attribute
+        // selector already double-quotes it; belt and braces.
+        $selector = sprintf('.instaread-player-slot[data-partner="%s"]', esc_attr($publication));
+        if ($mobile === $desktop) {
+            return sprintf('<style>%s{min-height:%dpx}</style>', $selector, $mobile);
+        }
+        return sprintf(
+            '<style>%s{min-height:%dpx}@media(min-width:%dpx){%s{min-height:%dpx}}</style>',
+            $selector, $mobile,
+            $breakpoint + 1, $selector, $desktop
+        );
+    }
+
     private function render_single($publication, $type, $color, $slot_css) {
         // data-instaread-version: lets us verify the deployed plugin version on a partner
         // site by curling any article and grepping the slot tag — no telemetry dependency.
+        //
+        // CLS mitigation: when partner config declares slot_heights, emit a scoped
+        // <style> block right before the slot with per-viewport min-heights. This
+        // eliminates the layout shift caused by the default 144px inline min-height
+        // being overridden later by the partner's styles.css (e.g. mobile 236px).
+        // Opt-in per partner — zero-config partners keep the legacy inline style.
+        $height_style = $this->build_slot_height_style_block($publication);
+
         $slot = sprintf(
-            '<div class="instaread-player-slot" data-instaread-version="%s" style="%s">
+            '%s<div class="instaread-player-slot" data-partner="%s" data-instaread-version="%s" style="%s">
                 <instaread-player publication="%s" playertype="%s" color="%s"></instaread-player>
             </div>',
+            $height_style,
+            esc_attr($publication),
             esc_attr($this->plugin_version),
             esc_attr($slot_css),
             esc_html($publication),

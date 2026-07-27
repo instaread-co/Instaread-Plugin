@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - bestofarkansassports",
-  "version": "4.7.17",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bestofarkansassports-v4.7.17/bestofarkansassports-v4.7.17.zip",
+  "version": "4.7.18",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bestofarkansassports-v4.7.18/bestofarkansassports-v4.7.18.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.17</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
+    "changelog": "<h4>4.7.18</h4><ul><li>Revert to targeted selector .pp-multiple-authors-boxes-wrapper + before_element (matches v4.7.16 position). Team pending approval on end-of-content append pattern.</li></ul>"
   }
 }

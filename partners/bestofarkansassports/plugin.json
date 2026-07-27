@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.18</h4><ul><li>Revert to targeted selector .pp-multiple-authors-boxes-wrapper + before_element (matches v4.7.16 position). Team pending approval on end-of-content append pattern.</li></ul>"
+    "changelog": "<h4>4.7.18</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
   }
 }

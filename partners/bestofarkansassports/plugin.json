@@ -1,10 +1,10 @@
 {
   "name": "Instaread Audio Player - bestofarkansassports",
-  "version": "4.7.18",
-  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bestofarkansassports-v4.7.18/bestofarkansassports-v4.7.18.zip",
+  "version": "4.7.19",
+  "download_url": "https://github.com/instaread-co/Instaread-Plugin/releases/download/bestofarkansassports-v4.7.19/bestofarkansassports-v4.7.19.zip",
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.18</h4><ul><li>Partner-specific build for bestofarkansassports</li></ul>"
+    "changelog": "<h4>4.7.19</h4><ul><li>Team-approved: switch to WordPress-standard end-of-content append via the_content filter. Same visual position as v4.7.18 (end of article body, above author box), but no dependency on PublishPress Authors plugin.</li></ul>"
   }
 }

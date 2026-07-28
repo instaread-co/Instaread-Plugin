@@ -20,8 +20,8 @@
   ],
   "injection_rules": [
     {
-      "target_selector": ".pp-multiple-authors-boxes-wrapper",
-      "insert_position": "before_element",
+      "target_selector": "",
+      "insert_position": "append",
       "exclude_slugs": [
         "/",
         "/privacy-policy/",
@@ -41,5 +41,5 @@
       ]
     }
   ],
-  "version": "4.7.18"
+  "version": "4.7.19"
 }

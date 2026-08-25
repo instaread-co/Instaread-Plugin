@@ -1,0 +1,10 @@
+{
+  "name": "Instaread Audio Player - agdaily (PHP 5.6 legacy build)",
+  "version": "4.7.19",
+  "download_url": "",
+  "requires": "5.6",
+  "tested": "6.5",
+  "sections": {
+    "changelog": "<h4>4.7.19</h4><ul><li>Pinned legacy build for agdaily on PHP 5.6.40. Updates are delivered manually as a new zip and this file is bumped by hand when we do.</li></ul>"
+  }
+}

@@ -1,0 +1,3 @@
+
+# Local one-off build artifacts (legacy PHP zips etc). Never commit.
+builds/

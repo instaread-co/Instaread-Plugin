@@ -126,6 +126,10 @@ Default `exclude_slugs` (trim/add per site): `/`, `/privacy-policy/`, `/terms-of
 
 `injection_context`: `"post"` (= `is_single()`, strictly WP posts) for almost all partners. Use `"singular"` for posts+pages+CPTs, `"page"` for pages only.
 
+### Optional informational fields
+
+- **`min_php_version`** — string like `"5.6"`, `"7.4"`, `"8.1"`. **Informational only** — records the partner's PHP runtime as of onboarding. **Not enforced anywhere in core.** Purpose: when a partner reports issues, this tells us at a glance whether they're on an old runtime that may lack PHP 7+ features our code assumes (48 `??` uses require PHP 7.0+; older syntax audit lives in git history near this commit). If a partner is stuck on PHP < 7.0 and won't upgrade, the ONLY safe path today is refusing the install and requesting a PHP upgrade — we do NOT ship a legacy-compatible build (proper transpile via composer + rector or `docker run php:5.6-cli` is a real backlog task; a hand-written rewrite failed on first attempt because we lack local PHP tooling to verify). First partner to carry this field: agdaily (reported PHP 5.6.40 on 2026-08-25 during onboarding — refused install pending upgrade).
+
 ---
 
 ## STEP 4 — Version alignment

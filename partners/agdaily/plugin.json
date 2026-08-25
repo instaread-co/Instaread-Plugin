@@ -5,6 +5,6 @@
   "requires": "5.6",
   "tested": "6.5",
   "sections": {
-    "changelog": "<h4>4.7.19</h4><ul><li>Initial partner build for agdaily. Player injects above first paragraph in article body (.article-content).</li></ul>"
+    "changelog": "<h4>4.7.19</h4><ul><li>Partner-specific build for agdaily</li></ul>"
   }
 }

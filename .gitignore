@@ -1,3 +1,6 @@
 
 # Local one-off build artifacts (legacy PHP zips etc). Never commit.
 builds/
+
+# Raw customer-pasted HTML for partner analysis. Not source code.
+demo-html/

@@ -8,6 +8,10 @@
   "clear_page_cache_on_upgrade": true,
   "enqueue_remote_player_script_sitewide": true,
   "min_php_version": "5.6",
+  "slot_heights": {
+    "mobile": 236,
+    "desktop": 236
+  },
   "enable_footer_js_fallback": true,
   "footer_js_fallback_selector": [
     ".article-content p",
